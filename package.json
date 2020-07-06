@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/taqtile-us/cordova-plugin-ar.git"
+    "url": "git+https://github.com/eclettica/cordova-plugin-ar.git"
   },
   "keywords": [
     "ecosystem:cordova",
@@ -19,7 +19,7 @@
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/taqtile-us/cordova-plugin-ar/issues"
+    "url": "https://github.com/eclettica/cordova-plugin-ar/issues"
   },
-  "homepage": "https://github.com/taqtile-us/cordova-plugin-ar#readme"
+  "homepage": "https://github.com/eclettica/cordova-plugin-ar#readme"
 }

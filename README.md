@@ -6,7 +6,7 @@
 
 ## Installation
 
-    cordova plugin add https://github.com/taqtile-us/cordova-plugin-ar
+    cordova plugin add https://github.com/eclettica/cordova-plugin-ar.git
 
 Add the following lines into your config.xml in the platform tag.
 ```xml
