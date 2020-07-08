@@ -17,17 +17,17 @@ Add the following lines into your config.xml in the platform tag.
 
 ## Methods
 
-- cordova.plugins.arkit.addARView
-- cordova.plugins.arkit.removeARView
-- cordova.plugins.arkit.setListenerForArChanges
-- cordova.plugins.arkit.reloadSession
+- cordova.plugins.ar.addARView
+- cordova.plugins.ar.removeARView
+- cordova.plugins.ar.setListenerForArChanges
+- cordova.plugins.ar.reloadSession
 
 ### addARView
 
 Insert the camera view under the WebView
 
 ```js
-cordova.plugins.arkit.addARView();
+cordova.plugins.ar.addARView();
 ```
 
 ### removeARView
@@ -35,7 +35,7 @@ cordova.plugins.arkit.addARView();
 Remove the camera view
 
 ```js
-cordova.plugins.arkit.removeARView();
+cordova.plugins.ar.removeARView();
 ```
 
 ### setListenerForArChanges
@@ -58,7 +58,7 @@ Set listener for event from ARKit
 
 
 ```js
-cordova.plugins.arkit.setListenerForArChanges((str) => {});
+cordova.plugins.ar.setListenerForArChanges((str) => {});
 ```
 
 ### reloadSession
@@ -66,5 +66,5 @@ cordova.plugins.arkit.setListenerForArChanges((str) => {});
 Reload AR session
 
 ```js
-cordova.plugins.arkit.reloadSession();
+cordova.plugins.ar.reloadSession();
 ```

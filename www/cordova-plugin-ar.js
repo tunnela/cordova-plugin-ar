@@ -1,5 +1,5 @@
 var exec = require('cordova/exec');
-var pluginName = 'ArKitPlugin';
+var pluginName = 'ArPlugin';
 
 /**
  * @callback PluginListener
