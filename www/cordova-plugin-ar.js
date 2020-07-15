@@ -31,7 +31,7 @@ exports.startArSession = function(options = {qrRecognitionEnabled: false}) {
     exec(undefined, undefined, pluginName, 'addARView', [options]);
 };
 
-exports.start = function(options = {allowMultiplePoints: false, unit: 'cm', unitTxt: 'cm'}, success?, error?) {
+exports.start = function(options = {allowMultiplePoints: false, unit: 'cm', unitTxt: 'cm'}, success, error) {
     exec(success, error, pluginName, 'addARView', [options]);
 };
 
