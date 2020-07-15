@@ -23,7 +23,7 @@
 
         <config-file target="config.xml" parent="/*">
             <feature name="ARPlugin">
-                <param name="android-package" value="com.gj.arcoredraw.MeasurePlugin"/>
+                <param name="android-package" value="com.gj.arcoredraw.ARPlugin"/>
             </feature>
         </config-file>
         <config-file target="AndroidManifest.xml" parent="/*">

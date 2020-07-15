@@ -1,5 +1,5 @@
 var exec = require('cordova/exec');
-var pluginName = 'ArPlugin';
+var pluginName = 'ARPlugin';
 
 /**
  * @callback PluginListener
@@ -29,6 +29,10 @@ exports.onQrFounded = function (success, error) {
  */
 exports.startArSession = function(options = {qrRecognitionEnabled: false}) {
     exec(undefined, undefined, pluginName, 'addARView', [options]);
+};
+
+exports.start = function(options = {allowMultiplePoints: false, unit: 'cm', unitTxt: 'cm'}, success?, error?) {
+    exec(success, error, pluginName, 'addARView', [options]);
 };
 
 /// Stop AR session and remove AR View the from veiw stack

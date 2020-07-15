@@ -117,6 +117,6 @@ class ARPlugin : CordovaPlugin() {
 
     companion object {
 
-        protected val TAG = "ARPlugin"
+        protected val TAG = "ARPlugin linup"
     }
 }
