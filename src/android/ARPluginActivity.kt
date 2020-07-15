@@ -76,7 +76,7 @@ class ARPluginActivity : AppCompatActivity() {
         allowMultiple = savedInstanceState?.getBoolean("allowMultiple") ?: false
         unit = savedInstanceState?.getString("unit") ?: extras.getString("unit")
         unitTxt = savedInstanceState?.getString("unitTxt") ?: extras.getString("unitTxt")
-        act = this
+        //act = this
         initView()
     }
 

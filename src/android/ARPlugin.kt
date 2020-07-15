@@ -67,16 +67,16 @@ class ARPlugin : CordovaPlugin() {
                 }
                 cordova.startActivityForResult(this, intent, 0)
             } else if (action == "removeARView") {
-                ARPluginActivity.act.finish();
+                //ARPluginActivity.act.finish();
             } else if (action == "restartArSession") {
-                ARPluginActivity.act.finish();
+                //ARPluginActivity.act.finish();
                 var options = data.getJSONObject(0)
                 val allowMultiple = options.getBoolean("allowMultiplePoints")
                 val unit = options.getString("unit")
                 val unitTxt = options.getString("unitTxt")
 
                 var intent = Intent().apply {
-                    setClass(cordova.getActivity().getApplicationContext(), MeasurePluginActivity::class.java)
+                    setClass(cordova.getActivity().getApplicationContext(), ARPluginActivity::class.java)
                     putExtra("allowMultiple", false)
                     putExtra("unit", unit)
                     putExtra("unitTxt", unitTxt)
