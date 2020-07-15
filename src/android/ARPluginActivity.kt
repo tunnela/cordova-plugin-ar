@@ -163,6 +163,8 @@ class ARPluginActivity : AppCompatActivity() {
                         }
             }
         }
+        InputStream inputStream = context.getAssets().open("imgdb/example.imgdb");
+        AugmentedImageDatabase imageDatabase = AugmentedImageDatabase.deserialize(inputStream);
     }
 
     private fun drawLine(firstAnchor: Anchor, secondAnchor: Anchor) {

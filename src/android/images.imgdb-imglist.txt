@@ -1,0 +1,6 @@
+mare.jpg|/data/eclettica/work/LINUP/ROS/AR_images/mare.jpg
+panorama.jpeg|/data/eclettica/work/LINUP/ROS/AR_images/panorama.jpeg
+pinball.jpg|/data/eclettica/work/LINUP/ROS/AR_images/pinball.jpg
+sedia.jpeg|/data/eclettica/work/LINUP/ROS/AR_images/sedia.jpeg
+trex.jpeg|/data/eclettica/work/LINUP/ROS/AR_images/trex.jpeg
+worker.jpg|/data/eclettica/work/LINUP/ROS/AR_images/worker.jpg
