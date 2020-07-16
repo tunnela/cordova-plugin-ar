@@ -1,9 +1,13 @@
 package com.gj.arcoredraw
 
 import android.annotation.SuppressLint
+import android.opengl.GLES20
+import android.opengl.GLSurfaceView
+import android.opengl.GLSurfaceView.Renderer
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
@@ -17,16 +21,31 @@ import com.google.ar.sceneform.rendering.ShapeFactory
 import com.google.ar.sceneform.rendering.ViewRenderable
 import com.google.ar.sceneform.rendering.Color
 import com.google.ar.sceneform.ux.ArFragment
+import com.google.ar.core.AugmentedImageDatabase
+import com.google.ar.core.Config
+import com.google.ar.core.Session
+import cordova.plugin.common.helpers.DisplayRotationHelper
+import java.io.IOException
+import java.io.InputStream
+import javax.microedition.khronos.egl.EGLConfig
+import javax.microedition.khronos.opengles.GL10
+
 
 /**
  * Based on https://github.com/Terran-Marine/ARCoreMeasuredDistance
  */
 
-class ARPluginActivity : AppCompatActivity() {
+class ARPluginActivity : AppCompatActivity(), Renderer {
     var allowMultiple: Boolean = false
     var unit: String = "cm"
     var unitTxt: String = "cm"
     var length: Double = 0.0;
+    private var session: Session? = null
+    private val backgroundRenderer = BackgroundRenderer()
+    private val augmentedImageRenderer = AugmentedImageRenderer()
+
+    private var displayRotationHelper: DisplayRotationHelper? = null
+
 
     private val measureArray = arrayListOf<String>()
 
@@ -69,6 +88,7 @@ class ARPluginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val extras: Bundle = getIntent().getExtras()
+        displayRotationHelper = DisplayRotationHelper(/*context=*/this)
 
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(getLayoutId())
@@ -163,8 +183,88 @@ class ARPluginActivity : AppCompatActivity() {
                         }
             }
         }
-        InputStream inputStream = context.getAssets().open("imgdb/example.imgdb");
-        AugmentedImageDatabase imageDatabase = AugmentedImageDatabase.deserialize(inputStream);
+        initArIr()
+    }
+
+    private fun initArIr() {
+        val inputStream: InputStream = this.assets.open("imgdb/images.imgdb")
+        session = Session(this);
+        configureSession();
+        val imageDatabase: AugmentedImageDatabase = AugmentedImageDatabase.deserialize(session, inputStream)
+
+    }
+
+
+    override fun onSurfaceChanged(gl: GL10, width: Int, height: Int) {
+        displayRotationHelper.onSurfaceChanged(width, height)
+        GLES20.glViewport(0, 0, width, height)
+    }
+
+    override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {
+        GLES20.glClearColor(0.1f, 0.1f, 0.1f, 1.0f)
+
+        // Prepare the rendering objects. This involves reading shaders, so may throw an IOException.
+        try {
+            // Create the texture and pass it to ARCore session to be filled during update().
+            backgroundRenderer.createOnGlThread(/*context=*/this)
+            augmentedImageRenderer.createOnGlThread(/*context=*/this)
+        } catch (e: IOException) {
+            Log.e(TAG, "Failed to read an asset file", e)
+        }
+
+    }
+
+
+    override fun onDrawFrame(gl: GL10) {
+        // Clear screen to notify driver it should not load any pixels from previous frame.
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
+
+        if (session == null) {
+            return
+        }
+        // Notify ARCore session that the view size changed so that the perspective matrix and
+        // the video background can be properly adjusted.
+        displayRotationHelper.updateSessionIfNeeded(session)
+
+        try {
+            session.setCameraTextureName(backgroundRenderer.getTextureId())
+
+            // Obtain the current frame from ARSession. When the configuration is set to
+            // UpdateMode.BLOCKING (it is by default), this will throttle the rendering to the
+            // camera framerate.
+            val frame = session.update()
+            val camera = frame.getCamera()
+
+            // Keep the screen unlocked while tracking, but allow it to lock when tracking stops.
+            trackingStateHelper.updateKeepScreenOnFlag(camera.getTrackingState())
+
+            // If frame is ready, render camera preview image to the GL surface.
+            backgroundRenderer.draw(frame)
+
+            // Get projection matrix.
+            val projmtx = FloatArray(16)
+            camera.getProjectionMatrix(projmtx, 0, 0.1f, 100.0f)
+
+            // Get camera matrix and draw.
+            val viewmtx = FloatArray(16)
+            camera.getViewMatrix(viewmtx, 0)
+
+            // Compute lighting from average intensity of the image.
+            val colorCorrectionRgba = FloatArray(4)
+            frame.getLightEstimate().getColorCorrection(colorCorrectionRgba, 0)
+
+            // Visualize augmented images.
+            drawAugmentedImages(frame, projmtx, viewmtx, colorCorrectionRgba)
+        } catch (t: Throwable) {
+            // Avoid crashing the application due to unhandled exceptions.
+            Log.e(TAG, "Exception on the OpenGL thread", t)
+        }
+    }
+
+    private fun configureSession(): Config {
+        val config: Config = Config(session)
+        session.configure(config)
+        return config
     }
 
     private fun drawLine(firstAnchor: Anchor, secondAnchor: Anchor) {

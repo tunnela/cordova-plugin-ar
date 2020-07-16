@@ -43,6 +43,23 @@
         <source-file src="src/android/AnchorInfoBean.kt" target-dir="app/src/main/java/cordova/plugin"/>
         <source-file src="src/android/FaceToCameraNode.kt" target-dir="app/src/main/java/cordova/plugin"/>
 
+        <source-file src="src/android/AugmentedImageRenderer.kt" target-dir="app/src/main/java/cordova/plugin"/>
+        <source-file src="src/android/BackgroundRenderer.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
+        <source-file src="src/android/CameraPermissionHelper.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
+        <source-file src="src/android/DepthSettings.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
+        <source-file src="src/android/DisplayRotationHelper.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
+        <source-file src="src/android/FullScreenHelper.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
+        <source-file src="src/android/ObjectRenderer.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
+        <source-file src="src/android/PlaneRenderer.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
+        <source-file src="src/android/PointCloudRenderer.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
+        <source-file src="src/android/ShaderUtil.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
+        <source-file src="src/android/SnackbarHelper.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
+        <source-file src="src/android/TapHelper.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
+        <source-file src="src/android/Texture.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
+        <source-file src="src/android/TrackingStateHelper.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
+        
+
+
         <source-file src="src/android/activity_arplugin.xml" target-dir="res/layout"/>
         <source-file src="src/android/renderable_text.xml" target-dir="res/layout"/>
         <source-file src="src/android/shape_rect_whtie_18.xml" target-dir="res/drawable"/>
@@ -51,7 +68,7 @@
 
         <source-file src="src/android/images.imgdb" target-dir="res/imgdb"/>
         <source-file src="src/android/images.imgdb-imglist.txt" target-dir="res/imgdb"/>
-
+        
     </platform>
 
     <platform name="ios">
