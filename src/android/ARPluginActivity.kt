@@ -1,17 +1,21 @@
 package com.gj.arcoredraw
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.GLSurfaceView.Renderer
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.annotation.RequiresApi
 import android.util.Log
+import android.util.Pair
+import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
-import com.google.ar.core.Anchor
+import com.google.ar.core.*
 import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.Node
 import com.google.ar.sceneform.math.Quaternion
@@ -21,14 +25,14 @@ import com.google.ar.sceneform.rendering.ShapeFactory
 import com.google.ar.sceneform.rendering.ViewRenderable
 import com.google.ar.sceneform.rendering.Color
 import com.google.ar.sceneform.ux.ArFragment
-import com.google.ar.core.AugmentedImageDatabase
-import com.google.ar.core.Config
-import com.google.ar.core.Session
-import cordova.plugin.common.helpers.DisplayRotationHelper
 import java.io.IOException
 import java.io.InputStream
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
+
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
+import java.util.HashMap
 
 
 /**
@@ -43,6 +47,11 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
     private var session: Session? = null
     private val backgroundRenderer = BackgroundRenderer()
     private val augmentedImageRenderer = AugmentedImageRenderer()
+    private val trackingStateHelper = TrackingStateHelper(this)
+    private val messageSnackbarHelper = SnackbarHelper()
+
+    private val augmentedImageMap = HashMap<Int, Pair<AugmentedImage, Anchor>>()
+
 
     private var displayRotationHelper: DisplayRotationHelper? = null
 
@@ -55,7 +64,13 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
     private val startNodeArray = arrayListOf<Node>()
     private val endNodeArray = arrayListOf<Node>()
 
+    private val fitToScanView: ImageView = null
+    private var glideRequestManager: RequestManager? = null
+
+
     private  lateinit var startNode: AnchorNode
+
+    private var TAG = "ARPlugin"
 
     companion object {
         val act = null    
@@ -84,6 +99,7 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
         return findViewById(id) as ImageView
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -97,6 +113,12 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
         unit = savedInstanceState?.getString("unit") ?: extras.getString("unit")
         unitTxt = savedInstanceState?.getString("unitTxt") ?: extras.getString("unitTxt")
         //act = this
+
+        fitToScanView = findViewById<ImageView>(R.id.image_view_fit_to_scan)
+        glideRequestManager = Glide.with(this)
+        glideRequestManager
+                .load(Uri.parse("file:///android_asset/fit_to_scan.png"))
+                .into(fitToScanView)
         initView()
     }
 
@@ -196,7 +218,7 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
 
 
     override fun onSurfaceChanged(gl: GL10, width: Int, height: Int) {
-        displayRotationHelper.onSurfaceChanged(width, height)
+        displayRotationHelper?.onSurfaceChanged(width, height)
         GLES20.glViewport(0, 0, width, height)
     }
 
@@ -224,46 +246,97 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
         }
         // Notify ARCore session that the view size changed so that the perspective matrix and
         // the video background can be properly adjusted.
-        displayRotationHelper.updateSessionIfNeeded(session)
+        displayRotationHelper?.updateSessionIfNeeded(session)
 
         try {
-            session.setCameraTextureName(backgroundRenderer.getTextureId())
+            session?.setCameraTextureName(backgroundRenderer.getTextureId())
 
             // Obtain the current frame from ARSession. When the configuration is set to
             // UpdateMode.BLOCKING (it is by default), this will throttle the rendering to the
             // camera framerate.
-            val frame = session.update()
-            val camera = frame.getCamera()
+            val frame = session?.update()
+            val camera = frame?.getCamera()
 
             // Keep the screen unlocked while tracking, but allow it to lock when tracking stops.
-            trackingStateHelper.updateKeepScreenOnFlag(camera.getTrackingState())
+            trackingStateHelper.updateKeepScreenOnFlag(camera?.getTrackingState())
 
             // If frame is ready, render camera preview image to the GL surface.
-            backgroundRenderer.draw(frame)
+            if (frame != null) {
+                backgroundRenderer.draw(frame)
+            }
 
             // Get projection matrix.
             val projmtx = FloatArray(16)
-            camera.getProjectionMatrix(projmtx, 0, 0.1f, 100.0f)
+            camera?.getProjectionMatrix(projmtx, 0, 0.1f, 100.0f)
 
             // Get camera matrix and draw.
             val viewmtx = FloatArray(16)
-            camera.getViewMatrix(viewmtx, 0)
+            camera?.getViewMatrix(viewmtx, 0)
 
             // Compute lighting from average intensity of the image.
             val colorCorrectionRgba = FloatArray(4)
-            frame.getLightEstimate().getColorCorrection(colorCorrectionRgba, 0)
+            frame?.getLightEstimate()?.getColorCorrection(colorCorrectionRgba, 0)
 
             // Visualize augmented images.
-            drawAugmentedImages(frame, projmtx, viewmtx, colorCorrectionRgba)
+            if (frame != null) {
+                drawAugmentedImages(frame, projmtx, viewmtx, colorCorrectionRgba)
+            }
         } catch (t: Throwable) {
             // Avoid crashing the application due to unhandled exceptions.
             Log.e(TAG, "Exception on the OpenGL thread", t)
         }
     }
 
+    private fun drawAugmentedImages(
+            frame: Frame, projmtx: FloatArray, viewmtx: FloatArray, colorCorrectionRgba: FloatArray) {
+        val updatedAugmentedImages = frame.getUpdatedTrackables(AugmentedImage::class.java)
+
+        // Iterate to update augmentedImageMap, remove elements we cannot draw.
+        for (augmentedImage in updatedAugmentedImages) {
+            when (augmentedImage.trackingState) {
+                TrackingState.PAUSED -> {
+                    // When an image is in PAUSED state, but the camera is not PAUSED, it has been detected,
+                    // but not yet tracked.
+                    val text = String.format("Detected Image %d", augmentedImage.index)
+                    messageSnackbarHelper.showMessage(this, text)
+                }
+
+                TrackingState.TRACKING -> {
+                    // Have to switch to UI Thread to update View.
+                    this.runOnUiThread { fitToScanView.setVisibility(View.GONE) }
+
+                    // Create a new anchor for newly found images.
+                    if (!augmentedImageMap.containsKey(augmentedImage.index)) {
+                        val centerPoseAnchor = augmentedImage.createAnchor(augmentedImage.centerPose)
+                        augmentedImageMap.put(
+                                augmentedImage.index, Pair.create(augmentedImage, centerPoseAnchor))
+                    }
+                }
+
+                TrackingState.STOPPED -> augmentedImageMap.remove(augmentedImage.index)
+
+                else -> {
+                }
+            }
+        }
+
+        // Draw all images in augmentedImageMap
+        for (pair in augmentedImageMap.values) {
+            val augmentedImage = pair.first
+            val centerAnchor = augmentedImageMap.get(augmentedImage.getIndex())?.second
+            when (augmentedImage.getTrackingState()) {
+                TrackingState.TRACKING -> augmentedImageRenderer.draw(
+                        viewmtx, projmtx, augmentedImage, centerAnchor!!, colorCorrectionRgba)
+                else -> {
+                }
+            }
+        }
+    }
+
+
     private fun configureSession(): Config {
         val config: Config = Config(session)
-        session.configure(config)
+        session?.configure(config)
         return config
     }
 

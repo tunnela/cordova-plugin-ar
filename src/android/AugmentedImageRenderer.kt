@@ -6,13 +6,7 @@ import com.google.ar.core.AugmentedImage
 import com.google.ar.core.Pose
 import java.io.IOException
 
-
-import android.content.Context
-import com.google.ar.core.Anchor
-import com.google.ar.core.AugmentedImage
-import com.google.ar.core.Pose
 import com.gj.arcoredraw.ObjectRenderer.BlendMode
-import java.io.IOException
 
 /** Renders an augmented image.  */
 class AugmentedImageRenderer {

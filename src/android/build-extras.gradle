@@ -9,11 +9,12 @@ buildscript {
         jcenter()
         maven { url 'https://maven.fabric.io/public' }
         google()
+        mavenLocal()
     }
 
     // move it here
     dependencies {
-        classpath 'com.google.ar.sceneform:plugin:1.6.0'
+        classpath 'com.google.ar.sceneform:plugin:1.18.0'
     }
 }
 
