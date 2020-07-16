@@ -209,7 +209,7 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
     }
 
     private fun initArIr() {
-        val inputStream: InputStream = this.assets.open("imgdb/images.imgdb")
+        val inputStream: InputStream = this.assets.open("sample_database.imgdb")
         session = Session(this);
         configureSession();
         val imageDatabase: AugmentedImageDatabase = AugmentedImageDatabase.deserialize(session, inputStream)
