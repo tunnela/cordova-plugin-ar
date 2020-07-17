@@ -66,8 +66,8 @@
         <source-file src="src/android/ar_last.png" target-dir="res/drawable"/>
         <source-file src="src/android/ar_post.png" target-dir="res/drawable"/>
 
-        <!-- <source-file src="src/android/images.imgdb" target-dir="res/imgdb"/>
-        <source-file src="src/android/images.imgdb-imglist.txt" target-dir="res/imgdb"/> -->
+        <source-file src="src/android/images.imgdb" target-dir="assets"/>
+        <source-file src="src/android/images.imgdb-imglist.txt" target-dir="assets"/>
         <source-file src="src/android/assets/default.jpg" target-dir="assets"/>
         <source-file src="src/android/assets/fit_to_scan.png" target-dir="assets"/>
         <source-file src="src/android/assets/models" target-dir="assets"/>

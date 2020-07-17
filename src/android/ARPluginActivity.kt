@@ -64,7 +64,7 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
     private val startNodeArray = arrayListOf<Node>()
     private val endNodeArray = arrayListOf<Node>()
 
-    private val fitToScanView: ImageView = null
+    private var fitToScanView: ImageView? = null
     private var glideRequestManager: RequestManager? = null
 
 
@@ -115,10 +115,10 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
         //act = this
 
         fitToScanView = findViewById<ImageView>(R.id.image_view_fit_to_scan)
-        glideRequestManager = Glide.with(this)
-        glideRequestManager
-                .load(Uri.parse("file:///android_asset/fit_to_scan.png"))
-                .into(fitToScanView)
+        //glideRequestManager = Glide.with(this)
+        //glideRequestManager
+        //        .load(Uri.parse("file:///android_asset/fit_to_scan.png"))
+        //        .into(fitToScanView)
         initView()
     }
 
