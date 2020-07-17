@@ -64,7 +64,7 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
     private val startNodeArray = arrayListOf<Node>()
     private val endNodeArray = arrayListOf<Node>()
 
-    private var fitToScanView: ImageView? = null
+    //private var fitToScanView: ImageView? = null
     private var glideRequestManager: RequestManager? = null
 
 
@@ -114,7 +114,7 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
         unitTxt = savedInstanceState?.getString("unitTxt") ?: extras.getString("unitTxt")
         //act = this
 
-        fitToScanView = findViewById<ImageView>(R.id.image_view_fit_to_scan)
+        //fitToScanView = findViewById<ImageView>(R.id.image_view_fit_to_scan)
         //glideRequestManager = Glide.with(this)
         //glideRequestManager
         //        .load(Uri.parse("file:///android_asset/fit_to_scan.png"))
@@ -303,7 +303,7 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
 
                 TrackingState.TRACKING -> {
                     // Have to switch to UI Thread to update View.
-                    this.runOnUiThread { fitToScanView.setVisibility(View.GONE) }
+                    //this.runOnUiThread { fitToScanView.setVisibility(View.GONE) }
 
                     // Create a new anchor for newly found images.
                     if (!augmentedImageMap.containsKey(augmentedImage.index)) {
