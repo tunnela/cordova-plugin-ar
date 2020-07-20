@@ -44,6 +44,7 @@
         <source-file src="src/android/FaceToCameraNode.kt" target-dir="app/src/main/java/cordova/plugin"/>
 
         <source-file src="src/android/AugmentedImageRenderer.kt" target-dir="app/src/main/java/cordova/plugin"/>
+        <source-file src="src/android/AugmentedImageActivity.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
         <source-file src="src/android/BackgroundRenderer.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
         <source-file src="src/android/CameraPermissionHelper.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
         <source-file src="src/android/DepthSettings.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
@@ -61,6 +62,7 @@
 
 
         <source-file src="src/android/activity_arplugin.xml" target-dir="res/layout"/>
+        <source-file src="src/android/activity_main.xml" target-dir="res/layout"/>
         <source-file src="src/android/renderable_text.xml" target-dir="res/layout"/>
         <source-file src="src/android/shape_rect_whtie_18.xml" target-dir="res/drawable"/>
         <source-file src="src/android/ar_last.png" target-dir="res/drawable"/>

@@ -254,7 +254,7 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
 
     override fun onResume() {
         super.onResume()
-
+        Log.d(TAG, "on Resume");
         if (session == null) {
             var exception: Exception? = null
             var message: String? = null

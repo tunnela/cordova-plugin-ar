@@ -59,15 +59,26 @@ class ARPlugin : CordovaPlugin() {
                 val unit = options.getString("unit")
                 val unitTxt = options.getString("unitTxt")
                  val startNew = options.getBoolean("startNew")
-
-                var intent = Intent().apply {
-                    setClass(cordova.getActivity().getApplicationContext(), ARPluginActivity::class.java)
-                    putExtra("allowMultiple", false)
-                    putExtra("unit", unit)
-                    putExtra("unitTxt", unitTxt)
-                    putExtra("startNew", startNew)
+                if ( startNew ) {
+                    var intent = Intent().apply {
+                        setClass(cordova.getActivity().getApplicationContext(), AugmentedImageActivity::class.java)
+                        putExtra("allowMultiple", false)
+                        putExtra("unit", unit)
+                        putExtra("unitTxt", unitTxt)
+                        putExtra("startNew", startNew)
+                    }
+                    cordova.startActivityForResult(this, intent, 0)
+                } else {
+                    var intent = Intent().apply {
+                        setClass(cordova.getActivity().getApplicationContext(), ARPluginActivity::class.java)
+                        putExtra("allowMultiple", false)
+                        putExtra("unit", unit)
+                        putExtra("unitTxt", unitTxt)
+                        putExtra("startNew", startNew)
+                    }
+                    cordova.startActivityForResult(this, intent, 0)
                 }
-                cordova.startActivityForResult(this, intent, 0)
+                
             } else if (action == "removeARView") {
                 //ARPluginActivity.act.finish();
             } else if (action == "restartArSession") {
