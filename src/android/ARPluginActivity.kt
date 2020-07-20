@@ -113,7 +113,7 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
         allowMultiple = savedInstanceState?.getBoolean("allowMultiple") ?: false
         unit = savedInstanceState?.getString("unit") ?: extras.getString("unit")
         unitTxt = savedInstanceState?.getString("unitTxt") ?: extras.getString("unitTxt")
-        startNew = savedInstanceState?.getBoolean("startNew") ?: false
+        startNew = savedInstanceState?.getBoolean("startNew") ?: extras.getBoolean("startNew")
 
         //act = this
 
@@ -162,6 +162,7 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
     @SuppressLint("NewApi")
     private fun initAr() {
         Log.i(TAG, "initAr")
+        
         getUI_ArSceneView().setOnTapArPlaneListener { hitResult, plane, motionEvent ->
 
             if (!allowMultiple && dataArray.size > 1) {
@@ -209,12 +210,14 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
                         }
             }
         }
+        Log.i(TAG, "initAr check start new: " + startNew)
         if(startNew) {
             Log.i(TAG, "initAr: startNew: " + startNew)
             initArIr()
         } else {
             Log.i(TAG, " not init arIr")
         }
+        Log.d(TAG, "initAr completed")
     }
 
     private fun initArIr() {
