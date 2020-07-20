@@ -41,7 +41,8 @@ import java.util.HashMap
  * Based on https://github.com/Terran-Marine/ARCoreMeasuredDistance
  */
 
-class ARPluginActivity : AppCompatActivity(), Renderer {
+// class ARPluginActivity : AppCompatActivity(), Renderer {
+class ARPluginActivity : AppCompatActivity() {
     var allowMultiple: Boolean = false
     var startNew: Boolean = false
     var unit: String = "cm"
@@ -252,226 +253,226 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
         Log.d(TAG, "deserialized!")
     }
 
-    override fun onResume() {
-        super.onResume()
-        Log.d(TAG, "on Resume");
-        if (session == null) {
-            var exception: Exception? = null
-            var message: String? = null
-            try {
-                when (ArCoreApk.getInstance().requestInstall(this, !installRequested)) {
-                    ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
-                        installRequested = true
-                        return
-                    }
-                    ArCoreApk.InstallStatus.INSTALLED -> {
-                    }
-                }
+    // override fun onResume() {
+    //     super.onResume()
+    //     Log.d(TAG, "on Resume");
+    //     if (session == null) {
+    //         var exception: Exception? = null
+    //         var message: String? = null
+    //         try {
+    //             when (ArCoreApk.getInstance().requestInstall(this, !installRequested)) {
+    //                 ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
+    //                     installRequested = true
+    //                     return
+    //                 }
+    //                 ArCoreApk.InstallStatus.INSTALLED -> {
+    //                 }
+    //             }
 
-                // ARCore requires camera permissions to operate. If we did not yet obtain runtime
-                // permission on Android M and above, now is a good time to ask the user for it.
-                if (!CameraPermissionHelper.hasCameraPermission(this)) {
-                    CameraPermissionHelper.requestCameraPermission(this)
-                    return
-                }
+    //             // ARCore requires camera permissions to operate. If we did not yet obtain runtime
+    //             // permission on Android M and above, now is a good time to ask the user for it.
+    //             if (!CameraPermissionHelper.hasCameraPermission(this)) {
+    //                 CameraPermissionHelper.requestCameraPermission(this)
+    //                 return
+    //             }
 
-                session = Session(/* context = */this)
-            } catch (e: UnavailableArcoreNotInstalledException) {
-                message = "Please install ARCore"
-                exception = e
-            } catch (e: UnavailableUserDeclinedInstallationException) {
-                message = "Please install ARCore"
-                exception = e
-            } catch (e: UnavailableApkTooOldException) {
-                message = "Please update ARCore"
-                exception = e
-            } catch (e: UnavailableSdkTooOldException) {
-                message = "Please update this app"
-                exception = e
-            } catch (e: Exception) {
-                message = "This device does not support AR"
-                exception = e
-            }
+    //             session = Session(/* context = */this)
+    //         } catch (e: UnavailableArcoreNotInstalledException) {
+    //             message = "Please install ARCore"
+    //             exception = e
+    //         } catch (e: UnavailableUserDeclinedInstallationException) {
+    //             message = "Please install ARCore"
+    //             exception = e
+    //         } catch (e: UnavailableApkTooOldException) {
+    //             message = "Please update ARCore"
+    //             exception = e
+    //         } catch (e: UnavailableSdkTooOldException) {
+    //             message = "Please update this app"
+    //             exception = e
+    //         } catch (e: Exception) {
+    //             message = "This device does not support AR"
+    //             exception = e
+    //         }
 
-            if (message != null) {
-                messageSnackbarHelper.showError(this, message)
-                Log.e(TAG, "Exception creating session", exception)
-                return
-            }
+    //         if (message != null) {
+    //             messageSnackbarHelper.showError(this, message)
+    //             Log.e(TAG, "Exception creating session", exception)
+    //             return
+    //         }
 
-            shouldConfigureSession = true
-        }
+    //         shouldConfigureSession = true
+    //     }
 
-        if (shouldConfigureSession) {
-            configureSession()
-            shouldConfigureSession = false
-        }
+    //     if (shouldConfigureSession) {
+    //         configureSession()
+    //         shouldConfigureSession = false
+    //     }
 
-        // Note that order matters - see the note in onPause(), the reverse applies here.
-        try {
-            session.resume()
-        } catch (e: CameraNotAvailableException) {
-            messageSnackbarHelper.showError(this, "Camera not available. Try restarting the app.")
-            //session = null
-            return
-        }
+    //     // Note that order matters - see the note in onPause(), the reverse applies here.
+    //     try {
+    //         session.resume()
+    //     } catch (e: CameraNotAvailableException) {
+    //         messageSnackbarHelper.showError(this, "Camera not available. Try restarting the app.")
+    //         //session = null
+    //         return
+    //     }
 
-        surfaceView.onResume()
-        displayRotationHelper.onResume()
+    //     surfaceView.onResume()
+    //     displayRotationHelper.onResume()
 
-        //fitToScanView.setVisibility(View.VISIBLE)
-    }
+    //     //fitToScanView.setVisibility(View.VISIBLE)
+    // }
 
-    public override fun onPause() {
-        super.onPause()
-        if (session != null) {
-            // Note that the order matters - GLSurfaceView is paused first so that it does not try
-            // to query the session. If Session is paused before GLSurfaceView, GLSurfaceView may
-            // still call session.update() and get a SessionPausedException.
-            displayRotationHelper.onPause()
-            surfaceView.onPause()
-            session.pause()
-        }
-    }
+    // public override fun onPause() {
+    //     super.onPause()
+    //     if (session != null) {
+    //         // Note that the order matters - GLSurfaceView is paused first so that it does not try
+    //         // to query the session. If Session is paused before GLSurfaceView, GLSurfaceView may
+    //         // still call session.update() and get a SessionPausedException.
+    //         displayRotationHelper.onPause()
+    //         surfaceView.onPause()
+    //         session.pause()
+    //     }
+    // }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, results: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, results)
-        if (!CameraPermissionHelper.hasCameraPermission(this)) {
-            Toast.makeText(
-                    this, "Camera permissions are needed to run this application", Toast.LENGTH_LONG)
-                    .show()
-            if (!CameraPermissionHelper.shouldShowRequestPermissionRationale(this)) {
-                // Permission denied with checking "Do not ask again".
-                CameraPermissionHelper.launchPermissionSettings(this)
-            }
-            finish()
-        }
-    }
-
-
-    override fun onSurfaceChanged(gl: GL10, width: Int, height: Int) {
-        displayRotationHelper?.onSurfaceChanged(width, height)
-        GLES20.glViewport(0, 0, width, height)
-    }
-
-    override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {
-        GLES20.glClearColor(0.1f, 0.1f, 0.1f, 1.0f)
-
-        // Prepare the rendering objects. This involves reading shaders, so may throw an IOException.
-        try {
-            // Create the texture and pass it to ARCore session to be filled during update().
-            backgroundRenderer.createOnGlThread(/*context=*/this)
-            augmentedImageRenderer.createOnGlThread(/*context=*/this)
-        } catch (e: IOException) {
-            Log.e(TAG, "Failed to read an asset file", e)
-        }
-
-    }
+    // override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, results: IntArray) {
+    //     super.onRequestPermissionsResult(requestCode, permissions, results)
+    //     if (!CameraPermissionHelper.hasCameraPermission(this)) {
+    //         Toast.makeText(
+    //                 this, "Camera permissions are needed to run this application", Toast.LENGTH_LONG)
+    //                 .show()
+    //         if (!CameraPermissionHelper.shouldShowRequestPermissionRationale(this)) {
+    //             // Permission denied with checking "Do not ask again".
+    //             CameraPermissionHelper.launchPermissionSettings(this)
+    //         }
+    //         finish()
+    //     }
+    // }
 
 
-    override fun onDrawFrame(gl: GL10) {
-        // Clear screen to notify driver it should not load any pixels from previous frame.
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
+    // override fun onSurfaceChanged(gl: GL10, width: Int, height: Int) {
+    //     displayRotationHelper?.onSurfaceChanged(width, height)
+    //     GLES20.glViewport(0, 0, width, height)
+    // }
 
-        if (session == null) {
-            Log.e(TAG, "onDrawFrame session is null!!!")
-            return
-        }
-        // Notify ARCore session that the view size changed so that the perspective matrix and
-        // the video background can be properly adjusted.
-        displayRotationHelper?.updateSessionIfNeeded(session)
+    // override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {
+    //     GLES20.glClearColor(0.1f, 0.1f, 0.1f, 1.0f)
 
-        try {
-            session?.setCameraTextureName(backgroundRenderer.getTextureId())
+    //     // Prepare the rendering objects. This involves reading shaders, so may throw an IOException.
+    //     try {
+    //         // Create the texture and pass it to ARCore session to be filled during update().
+    //         backgroundRenderer.createOnGlThread(/*context=*/this)
+    //         augmentedImageRenderer.createOnGlThread(/*context=*/this)
+    //     } catch (e: IOException) {
+    //         Log.e(TAG, "Failed to read an asset file", e)
+    //     }
 
-            // Obtain the current frame from ARSession. When the configuration is set to
-            // UpdateMode.BLOCKING (it is by default), this will throttle the rendering to the
-            // camera framerate.
-            val frame = session?.update()
-            val camera = frame?.getCamera()
+    // }
 
-            // Keep the screen unlocked while tracking, but allow it to lock when tracking stops.
-            trackingStateHelper.updateKeepScreenOnFlag(camera?.getTrackingState())
 
-            // If frame is ready, render camera preview image to the GL surface.
-            if (frame != null) {
-                backgroundRenderer.draw(frame)
-            } else {
-                Log.e(TAG, "onDrawFrame frame is null!!!")
-            }
+    // override fun onDrawFrame(gl: GL10) {
+    //     // Clear screen to notify driver it should not load any pixels from previous frame.
+    //     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
 
-            // Get projection matrix.
-            val projmtx = FloatArray(16)
-            camera?.getProjectionMatrix(projmtx, 0, 0.1f, 100.0f)
+    //     if (session == null) {
+    //         Log.e(TAG, "onDrawFrame session is null!!!")
+    //         return
+    //     }
+    //     // Notify ARCore session that the view size changed so that the perspective matrix and
+    //     // the video background can be properly adjusted.
+    //     displayRotationHelper?.updateSessionIfNeeded(session)
 
-            // Get camera matrix and draw.
-            val viewmtx = FloatArray(16)
-            camera?.getViewMatrix(viewmtx, 0)
+    //     try {
+    //         session?.setCameraTextureName(backgroundRenderer.getTextureId())
 
-            // Compute lighting from average intensity of the image.
-            val colorCorrectionRgba = FloatArray(4)
-            frame?.getLightEstimate()?.getColorCorrection(colorCorrectionRgba, 0)
+    //         // Obtain the current frame from ARSession. When the configuration is set to
+    //         // UpdateMode.BLOCKING (it is by default), this will throttle the rendering to the
+    //         // camera framerate.
+    //         val frame = session?.update()
+    //         val camera = frame?.getCamera()
 
-            // Visualize augmented images.
-            if (frame != null) {
-                drawAugmentedImages(frame, projmtx, viewmtx, colorCorrectionRgba)
-            } else {
-                Log.e(TAG, "onDrawFrame frame is null 2!!!")
-            }
-        } catch (t: Throwable) {
-            // Avoid crashing the application due to unhandled exceptions.
-            Log.e(TAG, "Exception on the OpenGL thread", t)
-        }
-    }
+    //         // Keep the screen unlocked while tracking, but allow it to lock when tracking stops.
+    //         trackingStateHelper.updateKeepScreenOnFlag(camera?.getTrackingState())
 
-    private fun drawAugmentedImages(
-            frame: Frame, projmtx: FloatArray, viewmtx: FloatArray, colorCorrectionRgba: FloatArray) {
-        val updatedAugmentedImages = frame.getUpdatedTrackables(AugmentedImage::class.java)
+    //         // If frame is ready, render camera preview image to the GL surface.
+    //         if (frame != null) {
+    //             backgroundRenderer.draw(frame)
+    //         } else {
+    //             Log.e(TAG, "onDrawFrame frame is null!!!")
+    //         }
 
-        // Iterate to update augmentedImageMap, remove elements we cannot draw.
-        for (augmentedImage in updatedAugmentedImages) {
-             Log.d(TAG, "drawAugmentedImages")
-            when (augmentedImage.trackingState) {
-                TrackingState.PAUSED -> {
-                    // When an image is in PAUSED state, but the camera is not PAUSED, it has been detected,
-                    // but not yet tracked.
-                    val text = String.format("Detected Image %d", augmentedImage.index)
-                    Log.d(TAG, "drawAugmentedImages " + text)
-                    messageSnackbarHelper.showMessage(this, text)
-                }
+    //         // Get projection matrix.
+    //         val projmtx = FloatArray(16)
+    //         camera?.getProjectionMatrix(projmtx, 0, 0.1f, 100.0f)
 
-                TrackingState.TRACKING -> {
-                    // Have to switch to UI Thread to update View.
-                    //this.runOnUiThread { fitToScanView.setVisibility(View.GONE) }
-                    val text = String.format("Detected Image %d", augmentedImage.index)
-                    Log.d(TAG, "drawAugmentedImages " + text)
-                    // Create a new anchor for newly found images.
-                    if (!augmentedImageMap.containsKey(augmentedImage.index)) {
-                        val centerPoseAnchor = augmentedImage.createAnchor(augmentedImage.centerPose)
-                        augmentedImageMap.put(
-                                augmentedImage.index, Pair.create(augmentedImage, centerPoseAnchor))
-                    }
-                }
+    //         // Get camera matrix and draw.
+    //         val viewmtx = FloatArray(16)
+    //         camera?.getViewMatrix(viewmtx, 0)
 
-                TrackingState.STOPPED -> augmentedImageMap.remove(augmentedImage.index)
+    //         // Compute lighting from average intensity of the image.
+    //         val colorCorrectionRgba = FloatArray(4)
+    //         frame?.getLightEstimate()?.getColorCorrection(colorCorrectionRgba, 0)
 
-                else -> {
-                }
-            }
-        }
+    //         // Visualize augmented images.
+    //         if (frame != null) {
+    //             drawAugmentedImages(frame, projmtx, viewmtx, colorCorrectionRgba)
+    //         } else {
+    //             Log.e(TAG, "onDrawFrame frame is null 2!!!")
+    //         }
+    //     } catch (t: Throwable) {
+    //         // Avoid crashing the application due to unhandled exceptions.
+    //         Log.e(TAG, "Exception on the OpenGL thread", t)
+    //     }
+    // }
 
-        // Draw all images in augmentedImageMap
-        for (pair in augmentedImageMap.values) {
-            val augmentedImage = pair.first
-            val centerAnchor = augmentedImageMap.get(augmentedImage.getIndex())?.second
-            when (augmentedImage.getTrackingState()) {
-                TrackingState.TRACKING -> augmentedImageRenderer.draw(
-                        viewmtx, projmtx, augmentedImage, centerAnchor!!, colorCorrectionRgba)
-                else -> {
-                }
-            }
-        }
-    }
+    // private fun drawAugmentedImages(
+    //         frame: Frame, projmtx: FloatArray, viewmtx: FloatArray, colorCorrectionRgba: FloatArray) {
+    //     val updatedAugmentedImages = frame.getUpdatedTrackables(AugmentedImage::class.java)
+
+    //     // Iterate to update augmentedImageMap, remove elements we cannot draw.
+    //     for (augmentedImage in updatedAugmentedImages) {
+    //          Log.d(TAG, "drawAugmentedImages")
+    //         when (augmentedImage.trackingState) {
+    //             TrackingState.PAUSED -> {
+    //                 // When an image is in PAUSED state, but the camera is not PAUSED, it has been detected,
+    //                 // but not yet tracked.
+    //                 val text = String.format("Detected Image %d", augmentedImage.index)
+    //                 Log.d(TAG, "drawAugmentedImages " + text)
+    //                 messageSnackbarHelper.showMessage(this, text)
+    //             }
+
+    //             TrackingState.TRACKING -> {
+    //                 // Have to switch to UI Thread to update View.
+    //                 //this.runOnUiThread { fitToScanView.setVisibility(View.GONE) }
+    //                 val text = String.format("Detected Image %d", augmentedImage.index)
+    //                 Log.d(TAG, "drawAugmentedImages " + text)
+    //                 // Create a new anchor for newly found images.
+    //                 if (!augmentedImageMap.containsKey(augmentedImage.index)) {
+    //                     val centerPoseAnchor = augmentedImage.createAnchor(augmentedImage.centerPose)
+    //                     augmentedImageMap.put(
+    //                             augmentedImage.index, Pair.create(augmentedImage, centerPoseAnchor))
+    //                 }
+    //             }
+
+    //             TrackingState.STOPPED -> augmentedImageMap.remove(augmentedImage.index)
+
+    //             else -> {
+    //             }
+    //         }
+    //     }
+
+    //     // Draw all images in augmentedImageMap
+    //     for (pair in augmentedImageMap.values) {
+    //         val augmentedImage = pair.first
+    //         val centerAnchor = augmentedImageMap.get(augmentedImage.getIndex())?.second
+    //         when (augmentedImage.getTrackingState()) {
+    //             TrackingState.TRACKING -> augmentedImageRenderer.draw(
+    //                     viewmtx, projmtx, augmentedImage, centerAnchor!!, colorCorrectionRgba)
+    //             else -> {
+    //             }
+    //         }
+    //     }
+    // }
 
 
     private fun configureSession(): Config {

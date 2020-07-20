@@ -93,9 +93,9 @@ public class AugmentedImageActivity extends AppCompatActivity implements GLSurfa
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     //setContentView(R.layout.activity_main);
-    setContentView(getResources().getIdentifier("activity_main", "layout", getPackageName());
+    setContentView(getResources().getIdentifier("activity_main", "layout", getPackageName()));
     //surfaceView = findViewById(R.id.surfaceview);
-    surfaceView = findViewById(getResources().getIdentifier("surfaceview", "id", getPackageName());
+    surfaceView = findViewById(getResources().getIdentifier("surfaceview", "id", getPackageName()));
     displayRotationHelper = new DisplayRotationHelper(/*context=*/ this);
 
     // Set up renderer.
@@ -107,7 +107,7 @@ public class AugmentedImageActivity extends AppCompatActivity implements GLSurfa
     surfaceView.setWillNotDraw(false);
 
     //fitToScanView = findViewById(R.id.image_view_fit_to_scan);
-    fitToScanView = findViewById(getResources().getIdentifier("image_view_fit_to_scan", "id", getPackageName());
+    fitToScanView = findViewById(getResources().getIdentifier("image_view_fit_to_scan", "id", getPackageName()));
     // glideRequestManager = Glide.with(this);
     // glideRequestManager
     //     .load(Uri.parse("file:///android_asset/fit_to_scan.png"))
