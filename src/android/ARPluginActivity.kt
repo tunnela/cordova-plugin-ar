@@ -113,7 +113,7 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
         allowMultiple = savedInstanceState?.getBoolean("allowMultiple") ?: false
         unit = savedInstanceState?.getString("unit") ?: extras.getString("unit")
         unitTxt = savedInstanceState?.getString("unitTxt") ?: extras.getString("unitTxt")
-        startNew = savedInstanceState?.getBoolean("allowMultiple") ?: false
+        startNew = savedInstanceState?.getBoolean("startNew") ?: false
 
         //act = this
 
@@ -212,15 +212,21 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
         if(startNew) {
             Log.i(TAG, "initAr: startNew: " + startNew)
             initArIr()
+        } else {
+            Log.i(TAG, " not init arIr")
         }
     }
 
     private fun initArIr() {
+        Log.d(TAG, "read database");
         val inputStream: InputStream = this.assets.open("sample_database.imgdb")
+        Log.d(TAG, "get Session")
         session = Session(this);
+        Log.d(TAG, "configure session")
         configureSession();
+        Log.d(TAG, "deserialize database");
         val imageDatabase: AugmentedImageDatabase = AugmentedImageDatabase.deserialize(session, inputStream)
-
+        Log.d(TAG, "deserialized!")
     }
 
 
@@ -300,18 +306,21 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
 
         // Iterate to update augmentedImageMap, remove elements we cannot draw.
         for (augmentedImage in updatedAugmentedImages) {
+             Log.d(TAG, "drawAugmentedImages")
             when (augmentedImage.trackingState) {
                 TrackingState.PAUSED -> {
                     // When an image is in PAUSED state, but the camera is not PAUSED, it has been detected,
                     // but not yet tracked.
                     val text = String.format("Detected Image %d", augmentedImage.index)
+                    Log.d(TAG, "drawAugmentedImages " + text)
                     messageSnackbarHelper.showMessage(this, text)
                 }
 
                 TrackingState.TRACKING -> {
                     // Have to switch to UI Thread to update View.
                     //this.runOnUiThread { fitToScanView.setVisibility(View.GONE) }
-
+                    val text = String.format("Detected Image %d", augmentedImage.index)
+                    Log.d(TAG, "drawAugmentedImages " + text)
                     // Create a new anchor for newly found images.
                     if (!augmentedImageMap.containsKey(augmentedImage.index)) {
                         val centerPoseAnchor = augmentedImage.createAnchor(augmentedImage.centerPose)
