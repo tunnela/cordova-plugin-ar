@@ -15,6 +15,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import com.google.ar.core.*
 import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.Node
@@ -32,6 +33,7 @@ import javax.microedition.khronos.opengles.GL10
 
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
+import com.google.ar.core.exceptions.*
 import java.util.HashMap
 
 
@@ -45,7 +47,7 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
     var unit: String = "cm"
     var unitTxt: String = "cm"
     var length: Double = 0.0;
-    private var session: Session? = null
+    private lateinit var session: Session
     private val backgroundRenderer = BackgroundRenderer()
     private val augmentedImageRenderer = AugmentedImageRenderer()
     private val trackingStateHelper = TrackingStateHelper(this)
@@ -54,7 +56,7 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
     private val augmentedImageMap = HashMap<Int, Pair<AugmentedImage, Anchor>>()
 
 
-    private var displayRotationHelper: DisplayRotationHelper? = null
+    private lateinit var displayRotationHelper: DisplayRotationHelper
 
 
     private val measureArray = arrayListOf<String>()
@@ -71,7 +73,11 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
 
     private  lateinit var startNode: AnchorNode
 
-    private var lateinit surfaceView: GLSurfaceView
+    private lateinit var surfaceView: GLSurfaceView
+
+    private var installRequested = false
+    private var shouldConfigureSession = false
+
 
     private var TAG = "ARPlugin"
 
@@ -111,7 +117,8 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
 
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(getLayoutId())
-        surfaceView = findViewById(R.id.surfaceview);
+        //surfaceView = findViewById(R.id.surfaceview);
+	        surfaceView = findViewById(getResources().getIdentifier("surfaceview", "id", getPackageName()));
 
         surfaceView.setPreserveEGLContextOnPause(true);
         surfaceView.setEGLContextClientVersion(2);
@@ -119,6 +126,9 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
         surfaceView.setRenderer(this);
         surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         surfaceView.setWillNotDraw(false);
+
+        installRequested = false
+
 
         allowMultiple = savedInstanceState?.getBoolean("allowMultiple") ?: false
         unit = savedInstanceState?.getString("unit") ?: extras.getString("unit")
@@ -240,6 +250,102 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
         Log.d(TAG, "deserialize database");
         val imageDatabase: AugmentedImageDatabase = AugmentedImageDatabase.deserialize(session, inputStream)
         Log.d(TAG, "deserialized!")
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (session == null) {
+            var exception: Exception? = null
+            var message: String? = null
+            try {
+                when (ArCoreApk.getInstance().requestInstall(this, !installRequested)) {
+                    ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
+                        installRequested = true
+                        return
+                    }
+                    ArCoreApk.InstallStatus.INSTALLED -> {
+                    }
+                }
+
+                // ARCore requires camera permissions to operate. If we did not yet obtain runtime
+                // permission on Android M and above, now is a good time to ask the user for it.
+                if (!CameraPermissionHelper.hasCameraPermission(this)) {
+                    CameraPermissionHelper.requestCameraPermission(this)
+                    return
+                }
+
+                session = Session(/* context = */this)
+            } catch (e: UnavailableArcoreNotInstalledException) {
+                message = "Please install ARCore"
+                exception = e
+            } catch (e: UnavailableUserDeclinedInstallationException) {
+                message = "Please install ARCore"
+                exception = e
+            } catch (e: UnavailableApkTooOldException) {
+                message = "Please update ARCore"
+                exception = e
+            } catch (e: UnavailableSdkTooOldException) {
+                message = "Please update this app"
+                exception = e
+            } catch (e: Exception) {
+                message = "This device does not support AR"
+                exception = e
+            }
+
+            if (message != null) {
+                messageSnackbarHelper.showError(this, message)
+                Log.e(TAG, "Exception creating session", exception)
+                return
+            }
+
+            shouldConfigureSession = true
+        }
+
+        if (shouldConfigureSession) {
+            configureSession()
+            shouldConfigureSession = false
+        }
+
+        // Note that order matters - see the note in onPause(), the reverse applies here.
+        try {
+            session.resume()
+        } catch (e: CameraNotAvailableException) {
+            messageSnackbarHelper.showError(this, "Camera not available. Try restarting the app.")
+            //session = null
+            return
+        }
+
+        surfaceView.onResume()
+        displayRotationHelper.onResume()
+
+        //fitToScanView.setVisibility(View.VISIBLE)
+    }
+
+    public override fun onPause() {
+        super.onPause()
+        if (session != null) {
+            // Note that the order matters - GLSurfaceView is paused first so that it does not try
+            // to query the session. If Session is paused before GLSurfaceView, GLSurfaceView may
+            // still call session.update() and get a SessionPausedException.
+            displayRotationHelper.onPause()
+            surfaceView.onPause()
+            session.pause()
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, results: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, results)
+        if (!CameraPermissionHelper.hasCameraPermission(this)) {
+            Toast.makeText(
+                    this, "Camera permissions are needed to run this application", Toast.LENGTH_LONG)
+                    .show()
+            if (!CameraPermissionHelper.shouldShowRequestPermissionRationale(this)) {
+                // Permission denied with checking "Do not ask again".
+                CameraPermissionHelper.launchPermissionSettings(this)
+            }
+            finish()
+        }
     }
 
 
