@@ -71,7 +71,7 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
 
     private  lateinit var startNode: AnchorNode
 
-    var surfaceView: GLSurfaceView
+    private var lateinit surfaceView: GLSurfaceView
 
     private var TAG = "ARPlugin"
 
