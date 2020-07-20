@@ -58,12 +58,13 @@ class ARPlugin : CordovaPlugin() {
                 val allowMultiple = options.getBoolean("allowMultiplePoints")
                 val unit = options.getString("unit")
                 val unitTxt = options.getString("unitTxt")
-
+                 val allowMultiple = options.getBoolean("startNew")
                 var intent = Intent().apply {
                     setClass(cordova.getActivity().getApplicationContext(), ARPluginActivity::class.java)
                     putExtra("allowMultiple", false)
                     putExtra("unit", unit)
                     putExtra("unitTxt", unitTxt)
+                    putExtra("startNew", allowMultiple)
                 }
                 cordova.startActivityForResult(this, intent, 0)
             } else if (action == "removeARView") {

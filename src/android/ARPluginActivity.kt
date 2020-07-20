@@ -41,6 +41,7 @@ import java.util.HashMap
 
 class ARPluginActivity : AppCompatActivity(), Renderer {
     var allowMultiple: Boolean = false
+    var startNew: Boolean = false
     var unit: String = "cm"
     var unitTxt: String = "cm"
     var length: Double = 0.0;
@@ -112,6 +113,8 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
         allowMultiple = savedInstanceState?.getBoolean("allowMultiple") ?: false
         unit = savedInstanceState?.getString("unit") ?: extras.getString("unit")
         unitTxt = savedInstanceState?.getString("unitTxt") ?: extras.getString("unitTxt")
+        startNew = savedInstanceState?.getBoolean("allowMultiple") ?: false
+
         //act = this
 
         //fitToScanView = findViewById<ImageView>(R.id.image_view_fit_to_scan)
@@ -158,6 +161,7 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
 
     @SuppressLint("NewApi")
     private fun initAr() {
+        Log.i(TAG, "initAr")
         getUI_ArSceneView().setOnTapArPlaneListener { hitResult, plane, motionEvent ->
 
             if (!allowMultiple && dataArray.size > 1) {
@@ -205,7 +209,10 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
                         }
             }
         }
-        initArIr()
+        if(startNew) {
+            Log.i(TAG, "initAr: startNew: " + startNew)
+            initArIr()
+        }
     }
 
     private fun initArIr() {
