@@ -71,6 +71,8 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
 
     private  lateinit var startNode: AnchorNode
 
+    var surfaceView: GLSurfaceView
+
     private var TAG = "ARPlugin"
 
     companion object {
@@ -109,6 +111,14 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
 
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(getLayoutId())
+        surfaceView = findViewById(R.id.surfaceview);
+
+        surfaceView.setPreserveEGLContextOnPause(true);
+        surfaceView.setEGLContextClientVersion(2);
+        surfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0); // Alpha used for plane blending.
+        surfaceView.setRenderer(this);
+        surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        surfaceView.setWillNotDraw(false);
 
         allowMultiple = savedInstanceState?.getBoolean("allowMultiple") ?: false
         unit = savedInstanceState?.getString("unit") ?: extras.getString("unit")
@@ -258,6 +268,7 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
 
         if (session == null) {
+            Log.e(TAG, "onDrawFrame session is null!!!")
             return
         }
         // Notify ARCore session that the view size changed so that the perspective matrix and
@@ -279,6 +290,8 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
             // If frame is ready, render camera preview image to the GL surface.
             if (frame != null) {
                 backgroundRenderer.draw(frame)
+            } else {
+                Log.e(TAG, "onDrawFrame frame is null!!!")
             }
 
             // Get projection matrix.
@@ -296,6 +309,8 @@ class ARPluginActivity : AppCompatActivity(), Renderer {
             // Visualize augmented images.
             if (frame != null) {
                 drawAugmentedImages(frame, projmtx, viewmtx, colorCorrectionRgba)
+            } else {
+                Log.e(TAG, "onDrawFrame frame is null 2!!!")
             }
         } catch (t: Throwable) {
             // Avoid crashing the application due to unhandled exceptions.
