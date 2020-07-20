@@ -108,10 +108,10 @@ public class AugmentedImageActivity extends AppCompatActivity implements GLSurfa
 
     //fitToScanView = findViewById(R.id.image_view_fit_to_scan);
     fitToScanView = findViewById(getResources().getIdentifier("image_view_fit_to_scan", "id", getPackageName()));
-    // glideRequestManager = Glide.with(this);
-    // glideRequestManager
-    //     .load(Uri.parse("file:///android_asset/fit_to_scan.png"))
-    //     .into(fitToScanView);
+    glideRequestManager = Glide.with(this);
+    glideRequestManager
+        .load(Uri.parse("file:///android_asset/fit_to_scan.png"))
+        .into(fitToScanView);
 
     installRequested = false;
   }
@@ -180,7 +180,7 @@ public class AugmentedImageActivity extends AppCompatActivity implements GLSurfa
     surfaceView.onResume();
     displayRotationHelper.onResume();
 
-    //fitToScanView.setVisibility(View.VISIBLE);
+    fitToScanView.setVisibility(View.VISIBLE);
   }
 
   @Override
@@ -315,7 +315,7 @@ public class AugmentedImageActivity extends AppCompatActivity implements GLSurfa
               new Runnable() {
                 @Override
                 public void run() {
-                  //fitToScanView.setVisibility(View.GONE);
+                  fitToScanView.setVisibility(View.GONE);
                 }
               });
 

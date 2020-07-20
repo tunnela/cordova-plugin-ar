@@ -119,14 +119,14 @@ class ARPluginActivity : AppCompatActivity() {
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(getLayoutId())
         //surfaceView = findViewById(R.id.surfaceview);
-	        surfaceView = findViewById(getResources().getIdentifier("surfaceview", "id", getPackageName()));
+	    //     surfaceView = findViewById(getResources().getIdentifier("surfaceview", "id", getPackageName()));
 
-        surfaceView.setPreserveEGLContextOnPause(true);
-        surfaceView.setEGLContextClientVersion(2);
-        surfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0); // Alpha used for plane blending.
-        surfaceView.setRenderer(this);
-        surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
-        surfaceView.setWillNotDraw(false);
+        // surfaceView.setPreserveEGLContextOnPause(true);
+        // surfaceView.setEGLContextClientVersion(2);
+        // surfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0); // Alpha used for plane blending.
+        // surfaceView.setRenderer(this);
+        // surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        // surfaceView.setWillNotDraw(false);
 
         installRequested = false
 
