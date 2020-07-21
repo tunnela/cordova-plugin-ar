@@ -20,6 +20,8 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -28,13 +30,20 @@ import com.google.ar.core.AugmentedImage;
 import com.google.ar.core.AugmentedImageDatabase;
 import com.google.ar.core.Config;
 import com.google.ar.core.Frame;
+import com.google.ar.core.HitResult;
+import com.google.ar.core.Plane;
+import com.google.ar.core.Point;
 import com.google.ar.core.Session;
+import com.google.ar.core.Trackable;
+import com.google.ar.core.TrackingState;
 import com.google.ar.core.exceptions.CameraNotAvailableException;
 import com.google.ar.core.exceptions.UnavailableApkTooOldException;
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
 import com.google.ar.sceneform.FrameTime;
+import com.google.ar.sceneform.HitTestResult;
+import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.ux.ArFragment;
 
 import java.io.IOException;
@@ -67,9 +76,12 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
   private boolean shouldConfigureSession = false;
   private final boolean useSingleImage = false;
 
+  private GestureDetector trackableGestureDetector;
 
 
-  private static final String TAG = "ARPlugin: " + AugmentedImageActivitySceneform.class.getSimpleName();
+
+
+  private static final String TAG = "ARPlugin: it.linup " + AugmentedImageActivitySceneform.class.getSimpleName();
 
 
 
@@ -86,8 +98,88 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
 
 
     arFragment.getArSceneView().getScene().addOnUpdateListener(this::onUpdateFrame);
+    arFragment.getArSceneView().getScene().setOnTouchListener(this::onTouchListner);
+    arFragment.getArSceneView().getScene().addOnPeekTouchListener(this::handleOnTouch);
+
+    this.trackableGestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+      public boolean onSingleTapUp(MotionEvent e) {
+        onSingleTap(e);
+        return true;
+      }
+
+      public boolean onDown(MotionEvent e) {
+        return true;
+      }
+    });
 
     installRequested = false;
+  }
+
+  private void handleOnTouch(HitTestResult hitTestResult, MotionEvent motionEvent) {
+    // First call ArFragment's listener to handle TransformableNodes.
+    arFragment.onPeekTouch(hitTestResult, motionEvent);
+
+    // Check for touching a Sceneform node
+    if (hitTestResult.getNode() != null) {
+      return;
+    }
+
+    // Otherwise call gesture detector.
+    trackableGestureDetector.onTouchEvent(motionEvent);
+  }
+
+  private void onSingleTap(MotionEvent motionEvent) {
+    Frame frame = arFragment.getArSceneView().getArFrame();
+    if (frame != null && motionEvent != null && frame.getCamera().getTrackingState() == TrackingState.TRACKING) {
+      for (HitResult hit : frame.hitTest(motionEvent)) {
+        Trackable trackable = hit.getTrackable();
+        if (trackable instanceof Plane && ((Plane)trackable).isPoseInPolygon(hit.getHitPose())) {
+          Plane plane = (Plane)trackable;
+
+          // Handle plane hits.
+          break;
+        } else if (trackable instanceof Point) {
+          // Handle point hits
+          Point point = (Point) trackable;
+
+        } else if (trackable instanceof AugmentedImage) {
+          // Handle image hits.
+          AugmentedImage image = (AugmentedImage) trackable;
+
+          String text = image.getName() + " " + image.getIndex() + " clicked!!!!";
+          Log.i(TAG, text);
+          SnackbarHelper.getInstance().showMessage(this, text);
+        }
+      }
+    }
+  }
+
+  private boolean onTouchListner(HitTestResult hitTestResult, MotionEvent motionEvent) {
+    Log.d(TAG,"handleOnTouch");
+    // First call ArFragment's listener to handle TransformableNodes.
+    arFragment.onPeekTouch(hitTestResult, motionEvent);
+
+    //We are only interested in the ACTION_UP events - anything else just return
+    if (motionEvent.getAction() != MotionEvent.ACTION_UP) {
+      return false;
+    }
+
+    // Check for touching a Sceneform node
+    if (hitTestResult.getNode() != null) {
+      Log.d(TAG,"handleOnTouch hitTestResult.getNode() != null");
+      Node hitNode = hitTestResult.getNode();
+
+      /*if (hitNode.getRenderable() == andyRenderable) {
+        arFragment.getArSceneView().getScene().removeChild(hitNode);
+        AnchorNode hitNodeAnchor = (AnchorNode) hitNode;
+        if (hitNodeAnchor != null) {
+          hitNode.getAnchor().detach();
+        }
+        hitNode.setParent(null);
+        hitNode = null;
+      }*/
+    }
+    return true;
   }
 
   /*@Override
@@ -258,8 +350,11 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
           if (!augmentedImageMap.containsKey(augmentedImage)) {
             Log.d(TAG, "onUpdateFrame create node ");
             AugmentedImageNode node = new AugmentedImageNode(this);
-            node.setImage(augmentedImage);
+            Log.d(TAG, "onUpdateFrame node created");
+            node.setImage(augmentedImage, this);
+            Log.d(TAG, "onUpdateFrame node image set");
             augmentedImageMap.put(augmentedImage, node);
+            Log.d(TAG, "onUpdateFrame node map put");
             arFragment.getArSceneView().getScene().addChild(node);
             Log.d(TAG, "onUpdateFrame added node ");
 

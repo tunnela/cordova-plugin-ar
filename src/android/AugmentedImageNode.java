@@ -2,12 +2,17 @@ package com.gj.arcoredraw;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 import com.google.ar.core.AugmentedImage;
 import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.math.Vector3;
+import com.google.ar.sceneform.rendering.MaterialFactory;
 import com.google.ar.sceneform.rendering.ModelRenderable;
+import com.google.ar.sceneform.rendering.ShapeFactory;
+import com.google.ar.sceneform.rendering.Color;
+
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -17,9 +22,10 @@ import java.util.concurrent.CompletableFuture;
 @SuppressWarnings({"AndroidApiChecker"})
 public class AugmentedImageNode extends AnchorNode {
 
-  private static final String TAG = "AugmentedImageNode";
+    private static final String TAG = "ARPlugin: it.linup " + AugmentedImageNode.class.getSimpleName();
 
-  // The augmented image represented by this node.
+
+    // The augmented image represented by this node.
   private AugmentedImage image;
 
   // Models of the 4 corners.  We use completable futures here to simplify
@@ -59,8 +65,42 @@ public class AugmentedImageNode extends AnchorNode {
    * relative to the center of the image, which is the parent node of the corners.
    */
   @SuppressWarnings({"AndroidApiChecker", "FutureReturnValueIgnored"})
-  public void setImage(AugmentedImage image) {
-    this.image = image;
+
+    public void setImage(AugmentedImage image, Context ctx) {
+      Log.d(TAG, "setImage");
+      this.image = image;
+      // Set the anchor based on the center of the image.
+      Log.d(TAG, "setAnchor");
+      setAnchor(image.createAnchor(image.getCenterPose()));
+
+      // Make the 4 corner nodes.
+      Log.d(TAG, "localPosition");
+      Vector3 localPosition = new Vector3();
+
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+          Log.d(TAG, "make opaque");
+          MaterialFactory.makeOpaqueWithColor(ctx, new Color(0.33f, 0.87f, 0f))
+                  .thenAccept(material -> {
+                      Log.d(TAG, "then...");
+                      ModelRenderable sphere = ShapeFactory.makeSphere(0.02f, Vector3.zero(), material);
+                      Log.d(TAG, "sphere created");
+                      Node sphereNode = new Node();
+                      Log.d(TAG, "sphere node created");
+                      sphereNode.setParent(this);
+                      Log.d(TAG, "parent set");
+                      sphereNode.setLocalPosition(Vector3.zero());
+                      Log.d(TAG, "set local position");
+                      sphereNode.setRenderable(sphere);
+                      Log.d(TAG, "set renderable");
+                  });
+      } else {
+          Log.d(TAG, "is not N???");
+      }
+  }
+
+    public void setImage(AugmentedImage image) {
+
+        this.image = image;
 
     // If any of the models are not loaded, then recurse when all are loaded.
     if (!ulCorner.isDone() || !urCorner.isDone() || !llCorner.isDone() || !lrCorner.isDone()) {
@@ -107,6 +147,18 @@ public class AugmentedImageNode extends AnchorNode {
     cornerNode.setParent(this);
     cornerNode.setLocalPosition(localPosition);
     cornerNode.setRenderable(llCorner.getNow(null));
+
+
+
+   /* MaterialFactory.makeOpaqueWithColor(this, com.google.ar.sceneform.rendering.Color(0.33f, 0.87f, 0f))
+                        .thenAccept { material ->
+            val sphere = ShapeFactory.makeSphere(0.02f, Vector3.zero(), material)
+      sphereNodeArray.add(    Node().apply {
+        setParent(startNode)
+        localPosition = Vector3.zero()
+        renderable = sphere
+      })
+    }*/
   }
 
   public AugmentedImage getImage() {
