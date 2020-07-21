@@ -199,15 +199,18 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
     } else {
       // This is an alternative way to initialize an AugmentedImageDatabase instance,
       // load a pre-existing augmented image database.
+      Log.d(TAG, "read database");
       try (InputStream is = getAssets().open("sample_database.imgdb")) {
+        Log.d(TAG, "deserialize database");
         augmentedImageDatabase = AugmentedImageDatabase.deserialize(session, is);
       } catch (IOException e) {
         Log.e(TAG, "IO exception loading augmented image database.", e);
         return false;
       }
     }
-
+    Log.d(TAG, "deserialized!");
     config.setAugmentedImageDatabase(augmentedImageDatabase);
+    Log.d(TAG, "database set!");
     return true;
   }
 
@@ -242,19 +245,26 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
           // When an image is in PAUSED state, but the camera is not PAUSED, it has been detected,
           // but not yet tracked.
           String text = "Detected Image " + augmentedImage.getIndex();
+          Log.d(TAG, "onUpdateFrame text: " + text);
           SnackbarHelper.getInstance().showMessage(this, text);
           break;
 
         case TRACKING:
           // Have to switch to UI Thread to update View.
+          Log.d(TAG, "onUpdateFrame fitToScan setVisibility ");
           fitToScanView.setVisibility(View.GONE);
-
+          Log.d(TAG, "onUpdateFrame fitToScan gone ");
           // Create a new anchor for newly found images.
           if (!augmentedImageMap.containsKey(augmentedImage)) {
+            Log.d(TAG, "onUpdateFrame create node ");
             AugmentedImageNode node = new AugmentedImageNode(this);
             node.setImage(augmentedImage);
             augmentedImageMap.put(augmentedImage, node);
             arFragment.getArSceneView().getScene().addChild(node);
+            Log.d(TAG, "onUpdateFrame added node ");
+
+          } else {
+            Log.d(TAG, "onUpdateFrame node already created");
           }
           break;
 

@@ -306,6 +306,7 @@ public class AugmentedImageActivity extends AppCompatActivity implements GLSurfa
           // When an image is in PAUSED state, but the camera is not PAUSED, it has been detected,
           // but not yet tracked.
           String text = String.format("Detected Image %d %s", augmentedImage.getIndex(), augmentedImage.getName());
+          Log.d(TAG, "drawAugmentedImages text: " + text);
           messageSnackbarHelper.showMessage(this, text);
           break;
 
@@ -315,15 +316,20 @@ public class AugmentedImageActivity extends AppCompatActivity implements GLSurfa
               new Runnable() {
                 @Override
                 public void run() {
+                  Log.d(TAG, "drawAugmentedImages fitToScan set visibility");
                   fitToScanView.setVisibility(View.GONE);
+                  Log.d(TAG, "drawAugmentedImages fitToScan set gone");
                 }
               });
 
           // Create a new anchor for newly found images.
           if (!augmentedImageMap.containsKey(augmentedImage.getIndex())) {
+            Log.d(TAG, "drawAugmentedImages add to map");
             Anchor centerPoseAnchor = augmentedImage.createAnchor(augmentedImage.getCenterPose());
             augmentedImageMap.put(
                 augmentedImage.getIndex(), Pair.create(augmentedImage, centerPoseAnchor));
+          } else {
+            Log.d(TAG, "drawAugmentedImages already into map");
           }
           break;
 
@@ -375,15 +381,18 @@ public class AugmentedImageActivity extends AppCompatActivity implements GLSurfa
     } else {
       // This is an alternative way to initialize an AugmentedImageDatabase instance,
       // load a pre-existing augmented image database.
+      Log.d(TAG, "read database");
       try (InputStream is = getAssets().open("sample_database.imgdb")) {
+        Log.d(TAG, "deserialize database");
         augmentedImageDatabase = AugmentedImageDatabase.deserialize(session, is);
       } catch (IOException e) {
         Log.e(TAG, "IO exception loading augmented image database.", e);
         return false;
       }
     }
-
+    Log.d(TAG, "deserialized!");
     config.setAugmentedImageDatabase(augmentedImageDatabase);
+    Log.d(TAG, "database set!");
     return true;
   }
 
