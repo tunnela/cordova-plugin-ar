@@ -95,6 +95,7 @@
         <source-file src="src/android/images.imgdb-imglist.txt" target-dir="assets"/>
         <source-file src="src/android/assets/default.jpg" target-dir="assets"/>
         <source-file src="src/android/assets/fit_to_scan.png" target-dir="assets"/>
+        <source-file src="src/android/assets/fit_to_scan.png" target-dir="res/drawable"/>
         <source-file src="src/android/assets/models" target-dir="assets"/>
         <source-file src="src/android/assets/sample_database.imgdb" target-dir="assets"/>
         <source-file src="src/android/assets/shaders" target-dir="assets"/>

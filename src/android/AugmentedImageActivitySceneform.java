@@ -50,10 +50,14 @@ public class AugmentedImageActivity extends AppCompatActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_main);
+    setContentView(getResources().getIdentifier("activity_mainsceneform", "layout", getPackageName()));
 
-    arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
-    fitToScanView = findViewById(R.id.image_view_fit_to_scan);
+    //arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
+    arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(getResources().getIdentifier("ux_fragment", "id", getPackageName()));
+    
+    //fitToScanView = findViewById(R.id.image_view_fit_to_scan);
+    fitToScanView = findViewById(getResources().getIdentifier("image_view_fit_to_scan", "id", getPackageName()));
+
 
     arFragment.getArSceneView().getScene().addOnUpdateListener(this::onUpdateFrame);
   }
