@@ -120,7 +120,7 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
     arFragment.onPeekTouch(hitTestResult, motionEvent);
 
     // Check for touching a Sceneform node
-    if (hitTestResult.getNode() != null) {
+    if (hitTestResult.getNode() == null) {
       return;
     }
 
@@ -165,7 +165,7 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
     }
 
     // Check for touching a Sceneform node
-    if (hitTestResult.getNode() != null) {
+    if (hitTestResult.getNode() == null) {
       Log.d(TAG,"handleOnTouch hitTestResult.getNode() != null");
       Node hitNode = hitTestResult.getNode();
 
