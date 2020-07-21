@@ -305,7 +305,7 @@ public class AugmentedImageActivity extends AppCompatActivity implements GLSurfa
         case PAUSED:
           // When an image is in PAUSED state, but the camera is not PAUSED, it has been detected,
           // but not yet tracked.
-          String text = String.format("Detected Image %d", augmentedImage.getIndex());
+          String text = String.format("Detected Image %d %s", augmentedImage.getIndex(), augmentedImage.getName());
           messageSnackbarHelper.showMessage(this, text);
           break;
 

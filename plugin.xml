@@ -40,6 +40,19 @@
             android:exported="true"
             android:screenOrientation="locked">
             </activity>
+            <activity android:name="com.gj.arcoredraw.AugmentedImageActivity" 
+            android:label="AR AI Activity" 
+            android:theme="@style/Theme.AppCompat.Light"
+            android:exported="true"
+            android:screenOrientation="locked">
+            </activity>
+            <activity
+                android:name="com.gj.arcoredraw.AugmentedImageActivitySceneform"
+                android:configChanges="orientation|screenSize"
+                android:exported="true"
+                android:theme="@style/Theme.AppCompat.NoActionBar"
+                android:screenOrientation="locked">
+            </activity>
             <meta-data android:name="com.google.ar.core" android:value="optional" />
             <meta-data android:name="com.google.ar.sceneform.ux" android:value="optional" />
         </config-file>
@@ -51,6 +64,9 @@
 
         <source-file src="src/android/AugmentedImageRenderer.kt" target-dir="app/src/main/java/cordova/plugin"/>
         <source-file src="src/android/AugmentedImageActivity.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
+        <source-file src="src/android/AugmentedImageActivitySceneform.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
+        <source-file src="src/android/AugmentedImageFragment.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
+        <source-file src="src/android/AugmentedImageNode.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
         <source-file src="src/android/BackgroundRenderer.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
         <source-file src="src/android/CameraPermissionHelper.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
         <source-file src="src/android/DepthSettings.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
@@ -69,6 +85,7 @@
 
         <source-file src="src/android/activity_arplugin.xml" target-dir="res/layout"/>
         <source-file src="src/android/activity_main.xml" target-dir="res/layout"/>
+        <source-file src="src/android/activity_mainsceneform.xml" target-dir="res/layout"/>
         <source-file src="src/android/renderable_text.xml" target-dir="res/layout"/>
         <source-file src="src/android/shape_rect_whtie_18.xml" target-dir="res/drawable"/>
         <source-file src="src/android/ar_last.png" target-dir="res/drawable"/>

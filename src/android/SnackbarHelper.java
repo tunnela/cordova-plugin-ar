@@ -32,6 +32,18 @@ public final class SnackbarHelper {
   private String lastMessage = "";
   private View snackbarView;
 
+  public SnackbarHelper() {
+    instance = this;
+  }
+
+  private static SnackbarHelper instance;
+
+  public static SnackbarHelper getInstance() {
+    if(instance == null)
+      instance = new SnackbarHelper();
+     return instance;
+  }
+
   public boolean isShowing() {
     return messageSnackbar != null;
   }

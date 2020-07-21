@@ -59,8 +59,18 @@ class ARPlugin : CordovaPlugin() {
                 val unit = options.getString("unit")
                 val unitTxt = options.getString("unitTxt")
                  val startNew = options.getBoolean("startNew")
-                if ( startNew ) {
+                 val startSceneform = options.getBoolean("startSceneform")
+                if ( startNew  && startSceneform) {
                     var intent = Intent().apply {
+                        setClass(cordova.getActivity().getApplicationContext(), AugmentedImageActivitySceneform::class.java)
+                        putExtra("allowMultiple", false)
+                        putExtra("unit", unit)
+                        putExtra("unitTxt", unitTxt)
+                        putExtra("startNew", startNew)
+                    }
+                    cordova.startActivityForResult(this, intent, 0)
+                } else if(startNew  && !startSceneform) {
+                        var intent = Intent().apply {
                         setClass(cordova.getActivity().getApplicationContext(), AugmentedImageActivity::class.java)
                         putExtra("allowMultiple", false)
                         putExtra("unit", unit)
