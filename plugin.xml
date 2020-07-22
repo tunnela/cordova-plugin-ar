@@ -64,6 +64,7 @@
 
         <source-file src="src/android/AugmentedImageRenderer.kt" target-dir="app/src/main/java/cordova/plugin"/>
         <source-file src="src/android/AugmentedImageActivity.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
+        <source-file src="src/android/ARPluginCallback.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
         <source-file src="src/android/AugmentedImageActivitySceneform.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
         <source-file src="src/android/AugmentedImageFragment.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
         <source-file src="src/android/AugmentedImageNode.java" target-dir="app/src/main/java/com/gj/arcoredraw"/>
