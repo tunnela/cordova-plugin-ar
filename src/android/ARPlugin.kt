@@ -15,6 +15,7 @@ class ARPluginCallback {
     companion object {
         var setMeasureListenerCallbackContext: CallbackContext? = null
         var setFinishListenerCallbackContext: CallbackContext? = null
+        var setClickedAugmentedImage: CallbackContext? = null
 
         fun onUpdate(value: String) {
             if (setFinishListenerCallbackContext != null) {
@@ -29,6 +30,14 @@ class ARPluginCallback {
                 val pluginResult = PluginResult(PluginResult.Status.OK, JSONArray(data))
                 pluginResult.keepCallback = true
                 setFinishListenerCallbackContext?.sendPluginResult(pluginResult)
+            }
+        }
+
+        fun onClick(value: String) {
+            if (setClickedAugmentedImage != null) {
+                val pluginResult = PluginResult(PluginResult.Status.OK, value)
+                pluginResult.keepCallback = true
+                setClickedAugmentedImage?.sendPluginResult(pluginResult)
             }
         }
     }
@@ -54,6 +63,8 @@ class ARPlugin : CordovaPlugin() {
                 pluginResult.keepCallback = true
                 callbackContext.sendPluginResult(pluginResult)
             } else if (action == "addARView") {
+                ARPluginCallback.setClickedAugmentedImage = callbackContext
+
                 var options = data.getJSONObject(0)
                 val allowMultiple = options.getBoolean("allowMultiplePoints")
                 val unit = options.getString("unit")

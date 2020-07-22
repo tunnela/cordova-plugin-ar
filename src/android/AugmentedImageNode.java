@@ -4,8 +4,11 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
+import android.view.MotionEvent;
+
 import com.google.ar.core.AugmentedImage;
 import com.google.ar.sceneform.AnchorNode;
+import com.google.ar.sceneform.HitTestResult;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.MaterialFactory;
@@ -14,6 +17,7 @@ import com.google.ar.sceneform.rendering.ShapeFactory;
 import com.google.ar.sceneform.rendering.Color;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 /**
  * Node for rendering an augmented image. The image is framed by placing the virtual picture frame
@@ -27,6 +31,10 @@ public class AugmentedImageNode extends AnchorNode {
 
     // The augmented image represented by this node.
   private AugmentedImage image;
+
+  private boolean isInfoNode = false;
+
+  private OnClickedListener onClickFunction;
 
   // Models of the 4 corners.  We use completable futures here to simplify
   // the error handling and asynchronous loading.  The loading is started with the
@@ -67,31 +75,32 @@ public class AugmentedImageNode extends AnchorNode {
   @SuppressWarnings({"AndroidApiChecker", "FutureReturnValueIgnored"})
 
     public void setImage(AugmentedImage image, Context ctx) {
-      Log.d(TAG, "setImage");
+      isInfoNode = false;
+      //Log.d(TAG, "setImage");
       this.image = image;
       // Set the anchor based on the center of the image.
-      Log.d(TAG, "setAnchor");
+      //Log.d(TAG, "setAnchor");
       setAnchor(image.createAnchor(image.getCenterPose()));
 
       // Make the 4 corner nodes.
-      Log.d(TAG, "localPosition");
+      //Log.d(TAG, "localPosition");
       Vector3 localPosition = new Vector3();
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-          Log.d(TAG, "make opaque");
+          //Log.d(TAG, "make opaque");
           MaterialFactory.makeOpaqueWithColor(ctx, new Color(0.33f, 0.87f, 0f))
                   .thenAccept(material -> {
-                      Log.d(TAG, "then...");
+                      //Log.d(TAG, "then...");
                       ModelRenderable sphere = ShapeFactory.makeSphere(0.02f, Vector3.zero(), material);
-                      Log.d(TAG, "sphere created");
+                      //Log.d(TAG, "sphere created");
                       Node sphereNode = new Node();
-                      Log.d(TAG, "sphere node created");
+                      //Log.d(TAG, "sphere node created");
                       sphereNode.setParent(this);
-                      Log.d(TAG, "parent set");
+                      //Log.d(TAG, "parent set");
                       sphereNode.setLocalPosition(Vector3.zero());
-                      Log.d(TAG, "set local position");
+                      //Log.d(TAG, "set local position");
                       sphereNode.setRenderable(sphere);
-                      Log.d(TAG, "set renderable");
+                      //Log.d(TAG, "set renderable");
                   });
       } else {
           Log.d(TAG, "is not N???");
@@ -164,4 +173,63 @@ public class AugmentedImageNode extends AnchorNode {
   public AugmentedImage getImage() {
     return image;
   }
+
+    public void setClickedImage(AugmentedImage image, Context ctx, AugmentedImageNode.OnClickedListener var1) {
+        this.isInfoNode = true;
+        this.onClickFunction = var1;
+        //Log.d(TAG, "setImage");
+        this.image = image;
+        // Set the anchor based on the center of the image.
+        //Log.d(TAG, "setAnchor");
+        setAnchor(image.createAnchor(image.getCenterPose()));
+
+        // Make the 4 corner nodes.
+        //Log.d(TAG, "localPosition");
+        Vector3 localPosition = new Vector3();
+        localPosition.set(0.0f, 0.0f, 0.5f * image.getExtentZ());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            //Log.d(TAG, "make opaque");
+            MaterialFactory.makeOpaqueWithColor(ctx, new Color(0.87f,0f, 0.33f))
+                    .thenAccept(material -> {
+                        //Log.d(TAG, "then...");
+                        Vector3 size = new Vector3(0.04f, 0.02f, 0.02f);
+                        //ModelRenderable sphere = ShapeFactory.makeSphere(0.02f, Vector3.zero(), material);
+                        ModelRenderable block = ShapeFactory.makeCube(size, Vector3.zero(), material);
+                        //Log.d(TAG, "sphere created");
+                        Node sphereNode = new Node();
+                        //Log.d(TAG, "sphere node created");
+                        sphereNode.setParent(this);
+                        //Log.d(TAG, "parent set");
+                        sphereNode.setLocalPosition(localPosition);
+                        //Log.d(TAG, "set local position");
+                        sphereNode.setRenderable(block);
+                        //Log.d(TAG, "set renderable");
+                    });
+        } else {
+            Log.d(TAG, "is not N???");
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(HitTestResult hitTestResult, MotionEvent motionEvent) {
+        //return super.onTouchEvent(hitTestResult, motionEvent);
+        Log.d(TAG, "onTouchEvent");
+        if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+            Log.d(TAG, "touched up!!!");
+            if(this.onClickFunction != null) {
+                this.onClickFunction.onClick(this);
+            }
+        }
+        return super.onTouchEvent(hitTestResult, motionEvent);
+    }
+
+    public boolean getIsInfoNode() {
+      return this.isInfoNode;
+    }
+
+    public interface OnClickedListener {
+        void onClick(AugmentedImageNode var1);
+    }
 }
+

@@ -48,8 +48,10 @@ import com.google.ar.sceneform.ux.ArFragment;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -71,6 +73,7 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
   // Augmented image and its associated center pose anchor, keyed by the augmented image in
   // the database.
   private final Map<AugmentedImage, AugmentedImageNode> augmentedImageMap = new HashMap<>();
+  private final Map<AugmentedImage, AugmentedImageNode> augmentedImageClickedMap = new HashMap<>();
   private Session session;
   private boolean installRequested;
   private boolean shouldConfigureSession = false;
@@ -98,7 +101,7 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
 
 
     arFragment.getArSceneView().getScene().addOnUpdateListener(this::onUpdateFrame);
-    arFragment.getArSceneView().getScene().setOnTouchListener(this::onTouchListner);
+    //arFragment.getArSceneView().getScene().setOnTouchListener(this::onTouchListner);
     arFragment.getArSceneView().getScene().addOnPeekTouchListener(this::handleOnTouch);
 
     this.trackableGestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
@@ -149,9 +152,33 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
           String text = image.getName() + " " + image.getIndex() + " clicked!!!!";
           Log.i(TAG, text);
           SnackbarHelper.getInstance().showMessage(this, text);
+          handleClickedAugmentedImage(image);
         }
       }
     }
+  }
+
+  private void handleClickedAugmentedImage(AugmentedImage image) {
+    if(augmentedImageClickedMap.containsKey(image)) {
+      //Era già stato cliccato. Rimuovo il nodo.
+      AugmentedImageNode a = augmentedImageClickedMap.get(image);
+      a.getAnchor().detach();
+      arFragment.getArSceneView().getScene().removeChild(a);
+      augmentedImageClickedMap.remove(image);
+    } else {
+      AugmentedImageNode node = new AugmentedImageNode(this);
+      node.setClickedImage(image, this, this::handleClickedInfoNode);
+      augmentedImageClickedMap.put(image, node);
+      arFragment.getArSceneView().getScene().addChild(node);
+      ARPluginCallback.onClick(""+node.getImage().getIndex());
+    }
+  }
+
+
+  private void handleClickedInfoNode(AugmentedImageNode node) {
+    Log.d(TAG, "handleClickedInfoNode clicked!");
+    if(node.getIsInfoNode())
+      ARPluginCallback.onClick(""+node.getImage().getIndex());
   }
 
   private boolean onTouchListner(HitTestResult hitTestResult, MotionEvent motionEvent) {
@@ -165,7 +192,7 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
     }
 
     // Check for touching a Sceneform node
-    if (hitTestResult.getNode() == null) {
+    if (hitTestResult.getNode() != null) {
       Log.d(TAG,"handleOnTouch hitTestResult.getNode() != null");
       Node hitNode = hitTestResult.getNode();
 
@@ -337,29 +364,29 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
           // When an image is in PAUSED state, but the camera is not PAUSED, it has been detected,
           // but not yet tracked.
           String text = "Detected Image " + augmentedImage.getIndex();
-          Log.d(TAG, "onUpdateFrame text: " + text);
+          //Log.d(TAG, "onUpdateFrame text: " + text);
           SnackbarHelper.getInstance().showMessage(this, text);
           break;
 
         case TRACKING:
           // Have to switch to UI Thread to update View.
-          Log.d(TAG, "onUpdateFrame fitToScan setVisibility ");
+          //Log.d(TAG, "onUpdateFrame fitToScan setVisibility ");
           fitToScanView.setVisibility(View.GONE);
-          Log.d(TAG, "onUpdateFrame fitToScan gone ");
+          //Log.d(TAG, "onUpdateFrame fitToScan gone ");
           // Create a new anchor for newly found images.
           if (!augmentedImageMap.containsKey(augmentedImage)) {
-            Log.d(TAG, "onUpdateFrame create node ");
+            //Log.d(TAG, "onUpdateFrame create node ");
             AugmentedImageNode node = new AugmentedImageNode(this);
-            Log.d(TAG, "onUpdateFrame node created");
+            //Log.d(TAG, "onUpdateFrame node created");
             node.setImage(augmentedImage, this);
-            Log.d(TAG, "onUpdateFrame node image set");
+            //Log.d(TAG, "onUpdateFrame node image set");
             augmentedImageMap.put(augmentedImage, node);
-            Log.d(TAG, "onUpdateFrame node map put");
+            //Log.d(TAG, "onUpdateFrame node map put");
             arFragment.getArSceneView().getScene().addChild(node);
-            Log.d(TAG, "onUpdateFrame added node ");
+            //Log.d(TAG, "onUpdateFrame added node ");
 
           } else {
-            Log.d(TAG, "onUpdateFrame node already created");
+            //Log.d(TAG, "onUpdateFrame node already created");
           }
           break;
 
