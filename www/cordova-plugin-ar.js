@@ -44,6 +44,10 @@ exports.restartArSession = function() {
     exec(undefined, undefined, pluginName, 'restartArSession');
 };
 
+exports.checkARCore = function(success, error) {
+    exec(success, error, pluginName, 'checkARCore');
+};
+
 //Change mode of current AR session
 // exports.startARSessionWithoutQRRecognition = function() {
     // exec(undefined, undefined, pluginName, 'startARSessionWithoutQRRecognition');

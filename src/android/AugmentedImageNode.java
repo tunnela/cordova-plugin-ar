@@ -5,19 +5,23 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
+import android.widget.TextView;
 
 import com.google.ar.core.AugmentedImage;
 import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.HitTestResult;
 import com.google.ar.sceneform.Node;
+import com.google.ar.sceneform.math.Quaternion;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.MaterialFactory;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.ShapeFactory;
 import com.google.ar.sceneform.rendering.Color;
+import com.google.ar.sceneform.rendering.ViewRenderable;
+import com.google.ar.sceneform.rendering.ViewSizer;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 /**
  * Node for rendering an augmented image. The image is framed by placing the virtual picture frame
@@ -174,7 +178,12 @@ public class AugmentedImageNode extends AnchorNode {
     return image;
   }
 
-    public void setClickedImage(AugmentedImage image, Context ctx, AugmentedImageNode.OnClickedListener var1) {
+    public void setClickedImage(AugmentedImage image,
+                                Context ctx,
+                                OnClickedListener var1,
+                                int layoutRef,
+                                String text,
+                                int textViewId) {
         this.isInfoNode = true;
         this.onClickFunction = var1;
         //Log.d(TAG, "setImage");
@@ -186,7 +195,7 @@ public class AugmentedImageNode extends AnchorNode {
         // Make the 4 corner nodes.
         //Log.d(TAG, "localPosition");
         Vector3 localPosition = new Vector3();
-        localPosition.set(0.0f, 0.0f, 0.5f * image.getExtentZ());
+        localPosition.set(0.0f, 0.0f, -0.5f * image.getExtentZ());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             //Log.d(TAG, "make opaque");
@@ -195,16 +204,47 @@ public class AugmentedImageNode extends AnchorNode {
                         //Log.d(TAG, "then...");
                         Vector3 size = new Vector3(0.04f, 0.02f, 0.02f);
                         //ModelRenderable sphere = ShapeFactory.makeSphere(0.02f, Vector3.zero(), material);
-                        ModelRenderable block = ShapeFactory.makeCube(size, Vector3.zero(), material);
+                        //ModelRenderable block = ShapeFactory.makeCube(size, Vector3.zero(), material);
                         //Log.d(TAG, "sphere created");
                         Node sphereNode = new Node();
                         //Log.d(TAG, "sphere node created");
                         sphereNode.setParent(this);
                         //Log.d(TAG, "parent set");
+                        sphereNode.setLocalScale(size);
                         sphereNode.setLocalPosition(localPosition);
-                        //Log.d(TAG, "set local position");
-                        sphereNode.setRenderable(block);
-                        //Log.d(TAG, "set renderable");
+                        sphereNode.setLocalRotation(new Quaternion(new Vector3(1.0f,0.0f,0.0f),-90));
+
+
+                        if(true) {
+                            ViewRenderable.builder()
+                                    .setView(ctx, layoutRef)
+                                    .build()
+                                    .thenAccept(
+                                            (renderable) -> {
+                                                sphereNode.setRenderable(renderable);
+                                                if(text != null) {
+                                                    TextView textView = (TextView) renderable.getView().findViewById(textViewId);
+                                                    if(textView != null)
+                                                        textView.setText(text);
+                                                }
+                                                //sphereNode.setWorldScale(size);
+                                                //Quaternion q = new Quaternion(0f, 0.7071f, 0f, 0.7071f);
+                                                //sphereNode.setWorldRotation(q);
+                                                sphereNode.setEnabled(true);
+                                            })
+                                    .exceptionally(
+                                            (throwable) -> {
+                                                throw new AssertionError("Could not load card view.", throwable);
+                                            }
+                                    );
+                        } else {
+                            //ModelRenderable sphere = ShapeFactory.makeSphere(0.02f, Vector3.zero(), material);
+                            ModelRenderable block = ShapeFactory.makeCube(size, Vector3.zero(), material);
+
+                            //Log.d(TAG, "set local position");
+                            sphereNode.setRenderable(block);
+                            //Log.d(TAG, "set renderable");
+                        }
                     });
         } else {
             Log.d(TAG, "is not N???");
@@ -214,8 +254,8 @@ public class AugmentedImageNode extends AnchorNode {
     @Override
     public boolean onTouchEvent(HitTestResult hitTestResult, MotionEvent motionEvent) {
         //return super.onTouchEvent(hitTestResult, motionEvent);
-        Log.d(TAG, "onTouchEvent");
-        if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+        Log.d(TAG, "onTouchEvent " + motionEvent.getAction());
+        if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
             Log.d(TAG, "touched up!!!");
             if(this.onClickFunction != null) {
                 this.onClickFunction.onClick(this);

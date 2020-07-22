@@ -10,6 +10,10 @@ import android.os.Handler
 import org.apache.cordova.PluginResult
 import org.apache.cordova.CordovaPlugin
 import com.google.ar.core.ArCoreApk
+import com.google.ar.core.exceptions.UnavailableApkTooOldException
+import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException
+import com.google.ar.core.exceptions.UnavailableSdkTooOldException
+import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException
 
 /*class ARPluginCallback {
     companion object {
@@ -44,6 +48,8 @@ import com.google.ar.core.ArCoreApk
 }*/
 
 class ARPlugin : CordovaPlugin() {
+
+    private var installRequested: Any = false
 
     @Throws(JSONException::class)
     override fun execute(action: String, data: JSONArray, callbackContext: CallbackContext): Boolean {
@@ -100,6 +106,15 @@ class ARPlugin : CordovaPlugin() {
                     cordova.startActivityForResult(this, intent, 0)
                 }
                 
+            } else if(action == "checkARCore"){
+
+                var aval = ArCoreApk.getInstance().checkAvailability(cordova.getActivity().applicationContext)
+                var pluginResult = PluginResult(PluginResult.Status.OK, "Supported");
+                if(!aval.isSupported())
+                    pluginResult = PluginResult(PluginResult.Status.OK, "Unsupported");
+                pluginResult.keepCallback = true
+                callbackContext.sendPluginResult(pluginResult)
+
             } else if (action == "removeARView") {
                 //ARPluginActivity.act.finish();
             } else if (action == "restartArSession") {

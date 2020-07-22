@@ -87,6 +87,7 @@
         <source-file src="src/android/activity_arplugin.xml" target-dir="res/layout"/>
         <source-file src="src/android/activity_main.xml" target-dir="res/layout"/>
         <source-file src="src/android/activity_mainsceneform.xml" target-dir="res/layout"/>
+        <source-file src="src/android/textview_clicked.xml" target-dir="res/layout"/>
         <source-file src="src/android/renderable_text.xml" target-dir="res/layout"/>
         <source-file src="src/android/shape_rect_whtie_18.xml" target-dir="res/drawable"/>
         <source-file src="src/android/ar_last.png" target-dir="res/drawable"/>

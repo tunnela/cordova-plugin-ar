@@ -24,6 +24,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.AugmentedImage;
@@ -48,10 +49,8 @@ import com.google.ar.sceneform.ux.ArFragment;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -167,10 +166,19 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
       augmentedImageClickedMap.remove(image);
     } else {
       AugmentedImageNode node = new AugmentedImageNode(this);
-      node.setClickedImage(image, this, this::handleClickedInfoNode);
+
+      int layoutRef = getResources().getIdentifier("textview_clicked", "layout", getPackageName());
+      //TextView textview = (TextView)findViewById(getResources().getIdentifier("textview_clicked", "id", getPackageName()));
+      //textview.setText("Prova");
+      //View infoCardLayout = findViewById(getResources().getIdentifier("textview_clicked", "layout", getPackageName()));
+      //TextView textView = (TextView) infoCardLayout.findViewById(getResources().getIdentifier("textview_clicked", "id", getPackageName()));
+      //textView.setText("Prova");
+
+      int textViewId = getResources().getIdentifier("textview_clicked", "id", getPackageName());
+      node.setClickedImage(image, this, this::handleClickedInfoNode, layoutRef, "Prova", textViewId);
       augmentedImageClickedMap.put(image, node);
       arFragment.getArSceneView().getScene().addChild(node);
-      ARPluginCallback.onClick(""+node.getImage().getIndex());
+      //ARPluginCallback.onClick(""+node.getImage().getIndex());
     }
   }
 
