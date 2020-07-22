@@ -11,7 +11,7 @@ import org.apache.cordova.PluginResult
 import org.apache.cordova.CordovaPlugin
 import com.google.ar.core.ArCoreApk
 
-class ARPluginCallback {
+/*class ARPluginCallback {
     companion object {
         var setMeasureListenerCallbackContext: CallbackContext? = null
         var setFinishListenerCallbackContext: CallbackContext? = null
@@ -41,7 +41,7 @@ class ARPluginCallback {
             }
         }
     }
-}
+}*/
 
 class ARPlugin : CordovaPlugin() {
 

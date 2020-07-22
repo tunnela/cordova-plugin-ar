@@ -174,7 +174,9 @@ class ARPluginActivity : AppCompatActivity() {
         }
 
         getUI_Post().setOnClickListener {
-            ARPluginCallback.onFinish(measureArray.toTypedArray())
+            //ARPluginCallback.onFinish(measureArray.toTypedArray())
+            ARPluginCallback.onFinish(measureArray.toMutableList())
+            
             finish()
         }
         initAr()
