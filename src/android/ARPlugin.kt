@@ -77,6 +77,7 @@ class ARPlugin : CordovaPlugin() {
                 val unitTxt = options.getString("unitTxt")
                  val startNew = options.getBoolean("startNew")
                  val startSceneform = options.getBoolean("startSceneform")
+
                 if ( startNew  && startSceneform) {
                     var intent = Intent().apply {
                         setClass(cordova.getActivity().getApplicationContext(), AugmentedImageActivitySceneform::class.java)
@@ -84,6 +85,13 @@ class ARPlugin : CordovaPlugin() {
                         putExtra("unit", unit)
                         putExtra("unitTxt", unitTxt)
                         putExtra("startNew", startNew)
+                        if(options.has("imagesDatabase"))
+                            putExtra("imagesDatabase", options.getString("imagesDatabase"))
+                        if(options.has("listImages")) {
+                            var listImages = options.getJSONArray("listImages")
+                            Log.d(TAG, "listImages " + listImages.toString());
+                            putExtra("listImages", listImages.toString())
+                        }
                     }
                     cordova.startActivityForResult(this, intent, 0)
                 } else if(startNew  && !startSceneform) {

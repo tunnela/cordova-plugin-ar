@@ -202,7 +202,7 @@ public class AugmentedImageNode extends AnchorNode {
             MaterialFactory.makeOpaqueWithColor(ctx, new Color(0.87f,0f, 0.33f))
                     .thenAccept(material -> {
                         //Log.d(TAG, "then...");
-                        Vector3 size = new Vector3(0.04f, 0.02f, 0.02f);
+                        Vector3 size = new Vector3(0.5f, 0.5f, 0.5f);
                         //ModelRenderable sphere = ShapeFactory.makeSphere(0.02f, Vector3.zero(), material);
                         //ModelRenderable block = ShapeFactory.makeCube(size, Vector3.zero(), material);
                         //Log.d(TAG, "sphere created");

@@ -47,10 +47,17 @@ import com.google.ar.sceneform.HitTestResult;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.ux.ArFragment;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -77,6 +84,8 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
   private boolean installRequested;
   private boolean shouldConfigureSession = false;
   private final boolean useSingleImage = false;
+  private String imagesDatabase = null;
+  private List<ListImageElement> imagesList= new LinkedList<ListImageElement>();
 
   private GestureDetector trackableGestureDetector;
 
@@ -115,6 +124,36 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
     });
 
     installRequested = false;
+    Bundle extras = getIntent().getExtras();
+    imagesDatabase = extras.getString("imagesDatabase", null);
+    String listImageString = extras.getString("listImages", null);
+    Log.d(TAG, "recivedlist: " + listImageString);
+    if(listImageString != null) {
+      try {
+        JSONArray jali = new JSONArray(listImageString);
+        if(jali != null) {
+          for (int i = 0; i < jali.length(); i++) {
+            JSONObject jo = jali.getJSONObject(i);
+            if(jo == null)
+              continue;
+            ListImageElement ile = new ListImageElement();
+            ile.imageName = jo.getString("imageName");
+            ile.textLabel = jo.getString("textLabel");
+            imagesList.add(ile);
+          }
+        }
+        Log.d(TAG, "numero elementi: " + imagesList.size());
+      } catch (JSONException e) {
+        e.printStackTrace();
+        Log.e(TAG, "error", e);
+      }
+    }
+  }
+
+
+  public static class ListImageElement {
+    public String imageName;
+    public String textLabel;
   }
 
   private void handleOnTouch(HitTestResult hitTestResult, MotionEvent motionEvent) {
@@ -175,7 +214,11 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
       //textView.setText("Prova");
 
       int textViewId = getResources().getIdentifier("textview_clicked", "id", getPackageName());
-      node.setClickedImage(image, this, this::handleClickedInfoNode, layoutRef, "Prova", textViewId);
+      String text = "Info";
+      if(imagesList != null && imagesList.size() > image.getIndex()) {
+        text = imagesList.get(image.getIndex()).textLabel;
+      }
+      node.setClickedImage(image, this, this::handleClickedInfoNode, layoutRef, text, textViewId);
       augmentedImageClickedMap.put(image, node);
       arFragment.getArSceneView().getScene().addChild(node);
       //ARPluginCallback.onClick(""+node.getImage().getIndex());
@@ -327,12 +370,22 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
       // This is an alternative way to initialize an AugmentedImageDatabase instance,
       // load a pre-existing augmented image database.
       Log.d(TAG, "read database");
-      try (InputStream is = getAssets().open("sample_database.imgdb")) {
-        Log.d(TAG, "deserialize database");
-        augmentedImageDatabase = AugmentedImageDatabase.deserialize(session, is);
-      } catch (IOException e) {
-        Log.e(TAG, "IO exception loading augmented image database.", e);
-        return false;
+      if(imagesDatabase == null) {
+        try (InputStream is = getAssets().open("sample_database.imgdb")) {
+          Log.d(TAG, "deserialize database");
+          augmentedImageDatabase = AugmentedImageDatabase.deserialize(session, is);
+        } catch (IOException e) {
+          Log.e(TAG, "IO exception loading augmented image database.", e);
+          return false;
+        }
+      } else {
+        try {
+          FileInputStream fis = this.openFileInput("imagesDatabase");
+          augmentedImageDatabase = AugmentedImageDatabase.deserialize(session, fis);
+        } catch (IOException e) {
+          Log.e(TAG, "IO exception loading augmented image database.", e);
+          return false;
+        }
       }
     }
     Log.d(TAG, "deserialized!");
