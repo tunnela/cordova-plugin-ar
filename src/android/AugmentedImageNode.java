@@ -20,6 +20,7 @@ import com.google.ar.sceneform.rendering.ShapeFactory;
 import com.google.ar.sceneform.rendering.Color;
 import com.google.ar.sceneform.rendering.ViewRenderable;
 import com.google.ar.sceneform.rendering.ViewSizer;
+import com.gj.arcoredraw.AugmentedImageActivitySceneform.ListImageElement;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -47,8 +48,9 @@ public class AugmentedImageNode extends AnchorNode {
   private static CompletableFuture<ModelRenderable> urCorner;
   private static CompletableFuture<ModelRenderable> lrCorner;
   private static CompletableFuture<ModelRenderable> llCorner;
+    public ListImageElement listImageElement;
 
-  public AugmentedImageNode(Context context) {
+    public AugmentedImageNode(Context context) {
     // Upon construction, start loading the models for the corners of the frame.
     if (ulCorner == null) {
       ulCorner =
@@ -183,9 +185,11 @@ public class AugmentedImageNode extends AnchorNode {
                                 OnClickedListener var1,
                                 int layoutRef,
                                 String text,
-                                int textViewId) {
+                                int textViewId,
+                                ListImageElement listImageElement) {
         this.isInfoNode = true;
         this.onClickFunction = var1;
+        this.listImageElement = listImageElement;
         //Log.d(TAG, "setImage");
         this.image = image;
         // Set the anchor based on the center of the image.

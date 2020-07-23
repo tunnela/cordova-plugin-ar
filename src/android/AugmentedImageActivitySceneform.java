@@ -137,8 +137,13 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
             if(jo == null)
               continue;
             ListImageElement ile = new ListImageElement();
+            ile.idx = jo.getInt("idx");
             ile.imageName = jo.getString("imageName");
             ile.textLabel = jo.getString("textLabel");
+            if(jo.has("closeOnClick"))
+              ile.closeOnClick = jo.getBoolean("closeOnClick");
+            else
+              ile.closeOnClick = true;
             imagesList.add(ile);
           }
         }
@@ -152,8 +157,10 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
 
 
   public static class ListImageElement {
+    public Integer idx;
     public String imageName;
     public String textLabel;
+    public Boolean closeOnClick;
   }
 
   private void handleOnTouch(HitTestResult hitTestResult, MotionEvent motionEvent) {
@@ -218,7 +225,7 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
       if(imagesList != null && imagesList.size() > image.getIndex()) {
         text = imagesList.get(image.getIndex()).textLabel;
       }
-      node.setClickedImage(image, this, this::handleClickedInfoNode, layoutRef, text, textViewId);
+      node.setClickedImage(image, this, this::handleClickedInfoNode, layoutRef, text, textViewId, imagesList.get(image.getIndex()));
       augmentedImageClickedMap.put(image, node);
       arFragment.getArSceneView().getScene().addChild(node);
       //ARPluginCallback.onClick(""+node.getImage().getIndex());
@@ -228,8 +235,17 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
 
   private void handleClickedInfoNode(AugmentedImageNode node) {
     Log.d(TAG, "handleClickedInfoNode clicked!");
-    if(node.getIsInfoNode())
-      ARPluginCallback.onClick(""+node.getImage().getIndex());
+    if(node.getIsInfoNode()) {
+      if(node.listImageElement == null)
+        ARPluginCallback.onClick("" + node.getImage().getIndex());
+      else
+        ARPluginCallback.onClick("" + node.listImageElement.idx);
+    }
+    if(imagesList != null && imagesList.size() > node.getImage().getIndex()) {
+      if(imagesList.get(node.getImage().getIndex()).closeOnClick) {
+        finish();
+      }
+    }
   }
 
   private boolean onTouchListner(HitTestResult hitTestResult, MotionEvent motionEvent) {
@@ -380,7 +396,7 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
         }
       } else {
         try {
-          FileInputStream fis = this.openFileInput("imagesDatabase");
+          FileInputStream fis = this.openFileInput(imagesDatabase);
           augmentedImageDatabase = AugmentedImageDatabase.deserialize(session, fis);
         } catch (IOException e) {
           Log.e(TAG, "IO exception loading augmented image database.", e);
