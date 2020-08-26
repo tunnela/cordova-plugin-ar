@@ -77,7 +77,7 @@ public class AugmentedImageActivity extends AppCompatActivity implements GLSurfa
   private final TrackingStateHelper trackingStateHelper = new TrackingStateHelper(this);
 
   private final BackgroundRenderer backgroundRenderer = new BackgroundRenderer();
-  private final AugmentedImageRenderer augmentedImageRenderer = new AugmentedImageRenderer();
+  // private final AugmentedImageRenderer augmentedImageRenderer = new AugmentedImageRenderer();
 
   private boolean shouldConfigureSession = false;
 
@@ -225,7 +225,7 @@ public class AugmentedImageActivity extends AppCompatActivity implements GLSurfa
     try {
       // Create the texture and pass it to ARCore session to be filled during update().
       backgroundRenderer.createOnGlThread(/*context=*/ this);
-      augmentedImageRenderer.createOnGlThread(/*context=*/ this);
+      //augmentedImageRenderer.createOnGlThread(/*context=*/ this);
     } catch (IOException e) {
       Log.e(TAG, "Failed to read an asset file", e);
     }
@@ -348,8 +348,8 @@ public class AugmentedImageActivity extends AppCompatActivity implements GLSurfa
       Anchor centerAnchor = augmentedImageMap.get(augmentedImage.getIndex()).second;
       switch (augmentedImage.getTrackingState()) {
         case TRACKING:
-          augmentedImageRenderer.draw(
-              viewmtx, projmtx, augmentedImage, centerAnchor, colorCorrectionRgba);
+          // augmentedImageRenderer.draw(
+          //     viewmtx, projmtx, augmentedImage, centerAnchor, colorCorrectionRgba);
           break;
         default:
           break;

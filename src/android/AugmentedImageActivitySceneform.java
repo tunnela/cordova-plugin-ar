@@ -407,6 +407,7 @@ public class AugmentedImageActivitySceneform extends AppCompatActivity {
     Log.d(TAG, "deserialized!");
     config.setAugmentedImageDatabase(augmentedImageDatabase);
     Log.d(TAG, "database set!");
+    Log.d(TAG, "number of images in database: " + augmentedImageDatabase.getNumImages());
     return true;
   }
 
